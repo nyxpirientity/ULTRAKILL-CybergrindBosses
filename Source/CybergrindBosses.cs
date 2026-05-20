@@ -65,7 +65,7 @@ namespace Nyxpiri.ULTRAKILL.CybergrindBosses
 
             TypesToSpawn.Clear();
 
-            for (int i = 0; i < 25 && points > 0; i++)
+            for (int i = 0; i < Options.BossSpawnIterations.Value && points > 0; i++)
             {
                 var entryRaw = Options.EnemyEntries.ElementAt(UnityEngine.Random.Range(0, Options.EnemyEntries.Count));
                 var entry = entryRaw.Value;
@@ -96,24 +96,24 @@ namespace Nyxpiri.ULTRAKILL.CybergrindBosses
                     continue;
                 }
 
-                if (points < spawnCost)
+                if (points < (spawnCost * entry.SpawnCostRequirementScalar.Value))
                 {
-                    Log.Debug($"{entryRaw.Key} DENIED on the basis of {points} being less than {spawnCost}");
+                    Log.Debug($"{entryRaw.Key} DENIED on the basis of {points} being less than {spawnCost * entry.SpawnCostRequirementScalar.Value}");
                     continue;
                 }
 
                 SpawnCooldowns[entryRaw.Key] = entryRaw.Value.SpawnCooldown.Value;
 
-                if (entryRaw.Key.VanillaEnumValue == EnemyType.FleshPanopticon || entryRaw.Key.VanillaEnumValue == EnemyType.FleshPrison)
+                if (entryRaw.Key.VanillaEnumValue == EnemyType.FleshPanopticon || entryRaw.Key.VanillaEnumValue == EnemyType.FleshPrison || entryRaw.Key == EnemyVariants.BloodTree)
                 {
-                    if (TypesToSpawn.Contains(EnemyTypeDB.Instance.GetVanillaType(EnemyType.FleshPanopticon)) || TypesToSpawn.Contains(EnemyTypeDB.Instance.GetVanillaType(EnemyType.FleshPrison)))
+                    if (TypesToSpawn.Contains(EnemyTypeDB.Instance.GetVanillaType(EnemyType.FleshPanopticon)) || TypesToSpawn.Contains(EnemyTypeDB.Instance.GetVanillaType(EnemyType.FleshPrison)) || TypesToSpawn.Contains(EnemyVariants.BloodTree))
                     {
                         continue;
                     }
                 }
 
                 spawnCostBonus += (int)(baseSpawnCost * entry.SpawnCostBonusScalar.Value);
-                points -= spawnCost;
+                points -= (int)(spawnCost * entry.SpawnCostSpentScalar.Value);
                 TypesToSpawn.Add(entryRaw.Key);
                 EnemyAmountToAdd += 1;
 
@@ -124,9 +124,9 @@ namespace Nyxpiri.ULTRAKILL.CybergrindBosses
 
                 Log.Debug($"adding type {entryRaw.Key} to types to spawn");
             }
-            
+
             Dictionary<AEnemyType, int> newSpawnCooldowns = new Dictionary<AEnemyType, int>(SpawnCooldowns);
-            
+
             foreach (var key in SpawnCooldowns.Keys)
             {
                 newSpawnCooldowns[key] -= 1;
@@ -135,7 +135,7 @@ namespace Nyxpiri.ULTRAKILL.CybergrindBosses
             SpawnCooldowns = newSpawnCooldowns;
 
             pointsFi.SetValue(endlessGrid, allPoints - (maxPoints - points));
-            spawnTimer = 2.5f;
+            spawnTimer = 0.3f;
             initialSpawn = true;
             Log.Debug($"should spawn {TypesToSpawn.Count} types");
         }
@@ -146,10 +146,10 @@ namespace Nyxpiri.ULTRAKILL.CybergrindBosses
 
         private void RegisterCheats(CheatsManager cheatsManager)
         {
-            cheatsManager.RegisterCheat(new ToggleCheat("Cybergrind Bosses", CheatID, 
+            cheatsManager.RegisterCheat(new ToggleCheat("Cybergrind Bosses", CheatID,
             (cheat) =>
             {
-                
+
             },
             (cheat, cheatsManager) =>
             {
@@ -161,27 +161,56 @@ namespace Nyxpiri.ULTRAKILL.CybergrindBosses
         {
         }
 
+        FieldAccess<EndlessGrid, int> incompletePrefabsFA = new FieldAccess<EndlessGrid, int>("incompletePrefabs");
+        FieldAccess<EndlessGrid, int> incompleteBlocksFA = new FieldAccess<EndlessGrid, int>("incompleteBlocks");
+
         protected void FixedUpdate()
         {
             if (NyxLib.Cheats.IsCheatDisabled(CheatID))
             {
-                return;   
+                return;
+            }
+
+            if (!Cybergrind.IsActive)
+            {
+                return;
+            }
+
+            var incompletePrefabs = incompletePrefabsFA.GetValue(EndlessGrid.Instance);
+            var incompleteBlocks = incompleteBlocksFA.GetValue(EndlessGrid.Instance);
+
+            if (incompleteBlocks > 0 || incompletePrefabs > 0)
+            {
+                return;
+            }
+
+            if (initialSpawn)
+            {
+                initialSpawn = false;
+
+                /*var hits = Physics.SphereCastAll(cgCenter + Vector3.up * 100.0f, 2.0f, Vector3.down, 200.0f);
+                var egCols = EndlessGrid.Instance.GetComponentsInChildren<Collider>();
+
+                foreach (var hit in hits)
+                {
+                    if (!egCols.Contains(hit.collider))
+                    {
+                        continue;
+                    }
+
+                    centerFloorPos = hit.collider != null ? (hit.point) : cgCenter;
+                    break;
+                }*/
+                Physics.SphereCast(cgCenter + Vector3.up * 200.0f, 2.0f, Vector3.down, out var hit, float.PositiveInfinity, 16777216);
+                centerFloorPos = hit.collider != null ? (hit.point) : cgCenter;
             }
 
             spawnTimer -= Time.fixedDeltaTime;
 
             if (spawnTimer <= 0.0f)
             {
-                if (initialSpawn)
-                {
-                    initialSpawn = false;
+                spawnTimer = 0.25f;
 
-                    Physics.SphereCast(cgCenter + Vector3.up * 100.0f, 2.0f, Vector3.down, out RaycastHit hit, 200.0f);
-                    centerFloorPos = hit.collider != null ? hit.point : cgCenter;
-                }
-
-                spawnTimer = 0.4f;
-                
                 if (TypesToSpawn.Count == 0)
                 {
                     return;
@@ -189,7 +218,7 @@ namespace Nyxpiri.ULTRAKILL.CybergrindBosses
 
                 var typeToSpawn = TypesToSpawn.FirstOrDefault();
                 GameObject prefab = null;
-                
+
                 switch (typeToSpawn.VanillaEnumValue)
                 {
                     case EnemyType.Gabriel:
@@ -225,29 +254,37 @@ namespace Nyxpiri.ULTRAKILL.CybergrindBosses
                     case EnemyType.CancerousRodent:
                         prefab = NyxLib.EnemyPrefabDatabase.GetPrefab(EnemyType.CancerousRodent);
                         break;
+                    case EnemyType.Minotaur:
+                        prefab = NyxLib.EnemyPrefabDatabase.GetPrefab(EnemyType.Minotaur);
+                        break;
+                    case EnemyType.VeryCancerousRodent:
+                        prefab = NyxLib.EnemyPrefabDatabase.GetPrefab(EnemyType.VeryCancerousRodent);
+                        break;
+                    case EnemyType.Geryon:
+                        prefab = EnemyVariants.GeryonPrefab.gameObject;
+                        break;
                     default:
                         break;
-                }   
+                }
 
                 GameObject enemyGo = null;
 
                 var spawnPos = centerFloorPos + (Vector3.up * 10.0f) + (Vector3.forward * 10.0f);
                 var bossBar = Options.EnemyEntries[typeToSpawn].ShowBossBar.Value;
-                
+
                 if (prefab != null)
                 {
                     enemyGo = GameObject.Instantiate(prefab, EndlessGrid.Instance.gameObject.transform);
                     enemyGo.SetActive(true);
                     Log.Debug($"done spawning prefab for type {typeToSpawn}");
-                    TypesToSpawn.Remove(typeToSpawn);
                     var enemy = enemyGo.GetComponentInChildren<EnemyComponents>();
                     var eid = enemy.Eid;
                     eid.gameObject.AddComponent<GrindBoss>();
 
                     enemy.Health = enemy.Health * Options.EnemyEntries[typeToSpawn].HealthScalar.Value;
-                    
+
                     eid.BossBar(bossBar);
-                    
+
                     if (typeToSpawn.VanillaEnumValue == EnemyType.FleshPrison || typeToSpawn.VanillaEnumValue == EnemyType.FleshPanopticon)
                     {
                         enemyGo.transform.position = centerFloorPos;
@@ -267,7 +304,7 @@ namespace Nyxpiri.ULTRAKILL.CybergrindBosses
                         {
                             col.gameObject.GetOrAddComponent<IgnoreDeathZones>();
                         }
-                        
+
                     }
                     else if (typeToSpawn.VanillaEnumValue == EnemyType.Leviathan)
                     {
@@ -310,7 +347,7 @@ namespace Nyxpiri.ULTRAKILL.CybergrindBosses
                         for (int i = 0; i < agonyAndTundra.transform.childCount; i++)
                         {
                             childrenToDetach[i] = agonyAndTundra.transform.GetChild(i);
-                        } 
+                        }
 
                         foreach (var child in childrenToDetach)
                         {
@@ -318,24 +355,20 @@ namespace Nyxpiri.ULTRAKILL.CybergrindBosses
                         }
 
                         GameObject.Destroy(agonyAndTundra);
- 
-                        TypesToSpawn.Remove(typeToSpawn);
+                    }
+                    else if (typeToSpawn == EnemyVariants.BloodTree)
+                    {
+                        var bf = GameObject.Instantiate(EnemyVariants.BloodTreePrefab, centerFloorPos, Quaternion.Euler(-90.0f, 0.0f, 0.0f), EndlessGrid.Instance.transform);
+                        bf.gameObject.AddComponent<GrindTree>();
+                        bf.gameObject.SetActive(true);
                     }
                     else
                     {
-                        return;
+
                     }
                 }
 
-                /*
-                    GameObject.Instantiate(prefab, EndlessGrid.Instance.gameObject.transform); // GEE I WONDER WHY THIS DIDNT WORK?
-                    prefab.transform.position = new Vector3(0.0f, 50.0f, 62.5f);
-                    prefab.SetActive(true);
-                    Log.Message($"done spawning prefab for type {typeToSpawn}");
-                    TypesToSpawn.Remove(typeToSpawn);
-                    Cybergrind.EndlessGrid.enemyAmount += 1;
-                    prefab.GetComponentInChildren<EnemyIdentifier>().gameObject.AddComponent<GrindBoss>();
-                */
+                TypesToSpawn.Remove(typeToSpawn);
             }
         }
 
@@ -357,7 +390,7 @@ namespace Nyxpiri.ULTRAKILL.CybergrindBosses
         {
             return true;
         }
-        
+
         public static void Postfix(EndlessGrid __instance)
         {
             __instance.tempEnemyAmount += CybergrindBosses.EnemyAmountToAdd;
