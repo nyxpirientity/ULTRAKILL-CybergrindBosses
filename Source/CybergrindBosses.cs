@@ -41,6 +41,7 @@ namespace Nyxpiri.ULTRAKILL.CybergrindBosses
         public const string CheatID = "nyxpiri.cybergrind-bosses";
         FieldAccess<EndlessGrid, int> pointsFi = new FieldAccess<EndlessGrid, int>("points");
 
+        private int _bossWaveCooldown = 0;
         public HashSet<NyxLib.AEnemyType> TypesToSpawn { get; private set; } = new HashSet<NyxLib.AEnemyType>();
         internal static int EnemyAmountToAdd { get; set; } = 0;
         public static Vector3 cgCenter = new Vector3(0.0f, 0.0f, 62.5f);
@@ -49,6 +50,8 @@ namespace Nyxpiri.ULTRAKILL.CybergrindBosses
         private static GameObject CenterGameObject = null;
         private static GameObject GeryonRotateAroundGameObject = null;
         public static Transform CenterFloorTransform => CenterGameObject.transform;
+
+        public bool IsBossWave => NyxLib.Cheats.IsCheatEnabled(CheatID) && (_bossWaveCooldown <= 0 || !Options.UseBossWaveCooldown.Value);
 
         private void NextWave(EventMethodCancelInfo cancelInfo, EndlessGrid endlessGrid)
         {
@@ -62,17 +65,41 @@ namespace Nyxpiri.ULTRAKILL.CybergrindBosses
                 return;
             }
 
-            var wave = endlessGrid.currentWave;
-
             EnemyAmountToAdd = 0;
+
+            TypesToSpawn.Clear();
+
+            if (IsBossWave)
+            {
+                SolveBossesToSpawn(endlessGrid);
+                _bossWaveCooldown = UnityEngine.Random.Range(Options.BossWaveCooldownMin.Value, Options.BossWaveCooldownMax.Value + 1);
+            }
+
+            _bossWaveCooldown -= 1;
+
+            if (IsBossWave || !Options.OnlyCountBossWavesTowardsBossCooldowns.Value)
+            {
+                Dictionary<AEnemyType, int> newSpawnCooldowns = new Dictionary<AEnemyType, int>(SpawnCooldowns);
+
+                foreach (var key in SpawnCooldowns.Keys)
+                {
+                    newSpawnCooldowns[key] -= 1;
+                }
+
+                SpawnCooldowns = newSpawnCooldowns;
+            }
+        }
+
+        private void SolveBossesToSpawn(EndlessGrid endlessGrid)
+        {
+            var wave = endlessGrid.currentWave;
 
             int allPoints = pointsFi.GetValue(endlessGrid);
             int maxPoints = Mathf.FloorToInt(allPoints * Options.PointsRatioAllocatedToBosses.Value);
             int points = maxPoints;
             int spawnCostBonus = 0;
-            Log.Debug($"deciding bosses to spawn with {points} points (allPoints = {allPoints})");
 
-            TypesToSpawn.Clear();
+            Log.Debug($"deciding bosses to spawn with {points} points (allPoints = {allPoints})");
 
             for (int i = 0; i < Options.BossSpawnIterations.Value && points > 0; i++)
             {
@@ -133,15 +160,6 @@ namespace Nyxpiri.ULTRAKILL.CybergrindBosses
 
                 Log.Debug($"adding type {entryRaw.Key} to types to spawn");
             }
-
-            Dictionary<AEnemyType, int> newSpawnCooldowns = new Dictionary<AEnemyType, int>(SpawnCooldowns);
-
-            foreach (var key in SpawnCooldowns.Keys)
-            {
-                newSpawnCooldowns[key] -= 1;
-            }
-
-            SpawnCooldowns = newSpawnCooldowns;
 
             pointsFi.SetValue(endlessGrid, allPoints - (maxPoints - points));
             spawnTimer = 0.3f;

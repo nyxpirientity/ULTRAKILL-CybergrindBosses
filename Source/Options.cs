@@ -30,6 +30,10 @@ namespace Nyxpiri.ULTRAKILL.CybergrindBosses
 
         public static ConfigEntry<float> PointsRatioAllocatedToBosses { get; private set; } = null;
         public static ConfigEntry<int> BossSpawnIterations { get; private set; } = null;
+        public static ConfigEntry<int> BossWaveCooldownMin { get; private set; } = null;
+        public static ConfigEntry<int> BossWaveCooldownMax { get; private set; }
+        public static ConfigEntry<bool> OnlyCountBossWavesTowardsBossCooldowns { get; private set; }
+        public static ConfigEntry<bool> UseBossWaveCooldown { get; private set; }
 
         public static ConfigEntry<float> BloodTreeEnemyCountFillSpeedBase = null;
         public static ConfigEntry<float> BloodTreeWaveHpFillSpeedBase = null;
@@ -51,6 +55,10 @@ namespace Nyxpiri.ULTRAKILL.CybergrindBosses
 
             PointsRatioAllocatedToBosses = _config.Bind("General", "PointsRatioAllocatedToBosses", 0.5f);
             BossSpawnIterations = _config.Bind("General", "BossSpawnIterations", 50);
+            BossWaveCooldownMin = _config.Bind("General", "GlobalBossWaveCooldownMin", 1);
+            BossWaveCooldownMax = _config.Bind("General", "GlobalBossWaveCooldownMax", 1);
+            UseBossWaveCooldown = _config.Bind("General", "UseGlobalBossWaveCooldown", true);
+            OnlyCountBossWavesTowardsBossCooldowns = _config.Bind("General", "OnlyCountBossWavesTowardsBossCooldowns", true);
 
             AddEnemyType(EnemyType.Geryon, false, 1000, 1, true, 0.5f, 70, 5.0f, 2.0f, 1.0f);
             AddEnemyType(EnemyType.CancerousRodent, true, 150, 1, true, 1.0f, 10, 0.0f, 1.0f, 0.0f);
