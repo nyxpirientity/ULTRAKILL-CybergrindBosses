@@ -67,6 +67,8 @@ namespace Nyxpiri.ULTRAKILL.CybergrindBosses
             minosP = GetComponent<MinosPrime>();
             minos = GetComponent<MinosBoss>();
 
+            gery = GetComponent<Geryon>();
+
             if (garbage != null)
             {
                 GabrielBaseBossVersionFA.SetValue(garbage, false);
@@ -96,15 +98,23 @@ namespace Nyxpiri.ULTRAKILL.CybergrindBosses
                 modifier.RescaleOnStart = 0.4f;
                 modifier.Damage = 50;
                 modifier.KillThreshold = 5;
+                _minosTargetPos = transform.position;
             }
 
             if (prison != null && prison.blackHole != null)
             {
                 prison.blackHole = GameObject.Instantiate(prison.blackHole.gameObject, prison.blackHole.transform.parent);
                 var modifier = prison.blackHole.AddComponent<BlackholeModifier>();
-                modifier.RescaleOnStart = 0.4f;
+                modifier.RescaleOnStart = 1.0f;
                 modifier.Damage = 50;
                 modifier.KillThreshold = 5;
+            }
+
+            if (gery != null)
+            {
+                FieldAccess<Geryon, Transform> rotateAroundFA = new FieldAccess<Geryon, Transform>("rotateAround");
+                rotateAroundFA.SetValue(gery, CybergrindBosses.CenterFloorTransform);
+                gery.gameObject.AddComponent<GeryonTweaks>();
             }
         }
 
@@ -257,69 +267,18 @@ namespace Nyxpiri.ULTRAKILL.CybergrindBosses
 
             if (lev != null)
             {
-                if (EndlessGrid.Instance.enemyAmount - EndlessGrid.Instance.GetComponent<ActivateNextWave>().deadEnemies <= 1)
+                if (RemainingEnemies <= 1)
                 {
-                    lev.phaseChangeHealth = 10000.0f;
-                    lev.active = false;
-                    lev.BeginSubPhase();
-                    lev.active = true;
-                    lev.onEnterSecondPhase.onActivate.AddListener(new UnityEngine.Events.UnityAction(() =>
+                    if (!lev.secondPhase && lev.readyForSecondPhase && _levSecondPhaseRequestTimestamp.TimeSince > 1.0)
                     {
-                        if (leviathanSecondPhaseEventCalled)
-                        {
-                            return;
-                        }
+                        lev.SubAttackOver();
+                    }
+                    else if (!lev.secondPhase && lev.readyForSecondPhase)
+                    {
+                        lev.transform.position += Vector3.down * 35.0f * Time.fixedDeltaTime;
+                    }
 
-                        leviathanSecondPhaseEventCalled = true;
-                        lev.transform.position += Vector3.down * 20.0f;
-
-                        for (int i = 0; i < EndlessGrid.Instance.cubes.Length; i++)
-                        {
-                            EndlessCube[] cubeX = EndlessGrid.Instance.cubes[i];
-                            foreach (var cube in cubeX)
-                            {
-                                cube.transform.position += Vector3.down * 150.0f;
-                            }
-                        }
-
-                        lev.stat.health *= 0.5f;
-
-                        var combinedGridStaticObjectFA = new FieldAccess<EndlessGrid, GameObject>("combinedGridStaticObject");
-
-                        combinedGridStaticObjectFA.GetValue(EndlessGrid.Instance).SetActive(false);
-
-                        var jumpPadPoolFA = new FieldAccess<EndlessGrid, List<CyberPooledPrefab>>("jumpPadPool");
-
-                        var jumpPadPool = jumpPadPoolFA.GetValue(EndlessGrid.Instance);
-
-                        foreach (var jumpPad in jumpPadPool)
-                        {
-                            jumpPad.gameObject.SetActive(false);
-                        }
-
-                        var explosion = GameObject.Instantiate(NyxLib.Assets.ExplosionPrefab, CybergrindBosses.cgCenter, Quaternion.identity);
-                        var eadd = explosion.GetComponent<ExplosionAdditions>();
-                        eadd.Harmless = true;
-                        eadd.ExplosionScale = 20.0f;
-                        eadd.ExplosionSpeedScale = 10.0f;
-                        eadd.ExplosionPushScale = 0.0f;
-                        explosion.SetActive(true);
-
-                        foreach (var audio in eadd.Audios)
-                        {
-                            audio.maxDistance *= 100.0f;
-                            audio.volume *= 1.2f;
-                        }
-
-                        levSpawnHookPointsTimer = 1.0f;
-
-                        if (NewMovement.Instance.transform.position.y < 50.0f)
-                        {
-                            NewMovement.Instance.gc.heavyFall = false;
-                        }
-
-                        NewMovement.Instance.LaunchUp(75.0f);
-                    }));
+                    LeviathanSecondPhase();
                 }
 
                 if (levSpawnHookPointsTimer > 0.0f)
@@ -331,6 +290,38 @@ namespace Nyxpiri.ULTRAKILL.CybergrindBosses
                         levSpawnHookPointsTimer = -1.0f;
 
                         LeviathanSpawnHookPoints();
+                        LevSecondPhaseLaunchPlayerUp();
+                    }
+                }
+
+                if (levDestroyFloorTimer > 0.0f)
+                {
+                    levDestroyFloorTimer -= Time.fixedDeltaTime;
+
+                    if (levDestroyFloorTimer <= 0.0f)
+                    {
+                        levDestroyFloorTimer = -1.0f;
+                        DestroyFloor();
+                    }
+                }
+
+                if (levDeathLaunchPlayerTimer > 0.0f)
+                {
+                    levDeathLaunchPlayerTimer -= Time.fixedDeltaTime;
+
+                    if (levDeathLaunchPlayerTimer <= 0.0f)
+                    {
+                        levDeathLaunchPlayerTimer = -1.0f;
+
+                        var colliders = lev.gameObject.GetComponentsInChildren<Collider>();
+
+                        foreach (var col in colliders)
+                        {
+                            col.enabled = false;
+                        }
+
+                        LevDeathLaunchPlayer();
+                        BigHarmlessExplosionAt(lev.head.transform.position);
                     }
                 }
             }
@@ -345,9 +336,9 @@ namespace Nyxpiri.ULTRAKILL.CybergrindBosses
                 Enemy.Eid.InstaKill();
             }
 
-            if (Enemy.Eid.Dead && Enemy.Eid.enemyType == EnemyType.Minos && waitingToDestroyTimestamp.TimeSince > 0.5)
+            if (Enemy.Eid.Dead && Enemy.Eid.enemyType == EnemyType.Minos && waitingToDestroyTimestamp.TimeSince > 0.2)
             {
-                _verticalShiftVelocity -= Time.fixedDeltaTime * 100.0f;
+                _verticalShiftVelocity -= Time.fixedDeltaTime * 60.0f;
 
                 transform.position += Vector3.up * _verticalShiftVelocity;
             }
@@ -356,22 +347,132 @@ namespace Nyxpiri.ULTRAKILL.CybergrindBosses
             {
                 if (lev != null)
                 {
-                    var explosion = GameObject.Instantiate(NyxLib.Assets.ExplosionPrefab, lev.head.transform.position, Quaternion.identity);
-                    var eadd = explosion.GetComponent<ExplosionAdditions>();
-                    eadd.Harmless = true;
-                    eadd.ExplosionScale = 20.0f;
-                    eadd.ExplosionSpeedScale = 10.0f;
-                    eadd.ExplosionPushScale = 0.0f;
-                    explosion.SetActive(true);
-                    foreach (var audio in eadd.Audios)
+                    BigHarmlessExplosionAt(lev.head.transform.position);
+                }
+
+                if (gery != null)
+                {
+                    var goreZone = GoreZone.ResolveGoreZone(base.transform);
+
+                    for (int i = 0; i < 24; i++)
                     {
-                        audio.maxDistance *= 100.0f;
-                        audio.volume *= 1.2f;
+                        var blood = BloodsplatterManager.Instance.GetGore(GoreType.Head, false, false, false, GetComponent<EnemyIdentifier>());
+                        if (!blood)
+                        {
+                            break;
+                        }
+
+                        blood.transform.position = transform.position + (UnityEngine.Random.insideUnitSphere * UnityEngine.Random.Range(0.0f, 34.0f));
+                        if (goreZone.goreZone != null)
+                        {
+                            blood.transform.SetParent(goreZone.goreZone, true);
+                        }
+
+                        blood.SetActive(value: true);
+                        if (blood.TryGetComponent<Bloodsplatter>(out var splatter))
+                        {
+                            splatter.GetReady();
+                        }
                     }
                 }
 
                 Enemy.InstaDestroy();
             }
+        }
+
+        private void BigHarmlessExplosionAt(Vector3 position)
+        {
+            var explosion = GameObject.Instantiate(NyxLib.Assets.ExplosionPrefab, position, Quaternion.identity);
+            var eadd = explosion.GetComponent<ExplosionAdditions>();
+            eadd.Harmless = true;
+            eadd.ExplosionScale = 20.0f;
+            eadd.ExplosionSpeedScale = 10.0f;
+            eadd.ExplosionPushScale = 0.0f;
+            explosion.SetActive(true);
+            foreach (var audio in eadd.Audios)
+            {
+                audio.maxDistance *= 100.0f;
+                audio.volume *= 1.2f;
+            }
+        }
+
+        private bool _levAlreadySecondPhasing = false;
+        private FixedTimeStamp _levSecondPhaseRequestTimestamp = new FixedTimeStamp();
+        private void LeviathanSecondPhase()
+        {
+            if (_levAlreadySecondPhasing)
+            {
+                return;
+            }
+
+            _levSecondPhaseRequestTimestamp.UpdateToNow();
+
+            _levAlreadySecondPhasing = true;
+
+            lev.phaseChangeHealth = 10000.0f;
+            lev.onEnterSecondPhase.onActivate.AddListener(new UnityEngine.Events.UnityAction(() =>
+            {
+                if (leviathanSecondPhaseEventCalled)
+                {
+                    return;
+                }
+
+                leviathanSecondPhaseEventCalled = true;
+
+                lev.stat.health *= 0.5f;
+
+                var explosion = GameObject.Instantiate(NyxLib.Assets.ExplosionPrefab, CybergrindBosses.cgCenter, Quaternion.identity);
+                var eadd = explosion.GetComponent<ExplosionAdditions>();
+                eadd.Harmless = true;
+                eadd.ExplosionScale = 20.0f;
+                eadd.ExplosionSpeedScale = 10.0f;
+                eadd.ExplosionPushScale = 0.0f;
+                explosion.SetActive(true);
+
+                foreach (var audio in eadd.Audios)
+                {
+                    audio.maxDistance *= 100.0f;
+                    audio.volume *= 1.2f;
+                }
+
+                levDestroyFloorTimer = 0.2f;
+                levSpawnHookPointsTimer = 0.35f;
+            }));
+        }
+
+        private static void DestroyFloor()
+        {
+            for (int i = 0; i < EndlessGrid.Instance.cubes.Length; i++)
+            {
+                EndlessCube[] cubeX = EndlessGrid.Instance.cubes[i];
+                foreach (var cube in cubeX)
+                {
+                    cube.transform.position += Vector3.down * 150.0f;
+                }
+            }
+
+            var combinedGridStaticObjectFA = new FieldAccess<EndlessGrid, GameObject>("combinedGridStaticObject");
+
+            combinedGridStaticObjectFA.GetValue(EndlessGrid.Instance).SetActive(false);
+
+            var jumpPadPoolFA = new FieldAccess<EndlessGrid, List<CyberPooledPrefab>>("jumpPadPool");
+
+            var jumpPadPool = jumpPadPoolFA.GetValue(EndlessGrid.Instance);
+
+            foreach (var jumpPad in jumpPadPool)
+            {
+                jumpPad.gameObject.SetActive(false);
+            }
+        }
+
+        private static void LevSecondPhaseLaunchPlayerUp()
+        {
+            if (NewMovement.Instance.transform.position.y < 50.0f)
+            {
+                NewMovement.Instance.gc.heavyFall = false;
+            }
+
+            NewMovement.Instance.LaunchUp(75.0f);
         }
 
         private void LeviathanSpawnHookPoints()
@@ -402,6 +503,14 @@ namespace Nyxpiri.ULTRAKILL.CybergrindBosses
 
         protected void OnNextWave(EventMethodCanceler canceler, EndlessGrid endlessGrid)
         {
+            if (Enemy.Eid.enemyType == EnemyType.Leviathan || Enemy.Eid.enemyType == EnemyType.Minos ||
+                Enemy.Eid.enemyType == EnemyType.Leviathan || Enemy.Eid.enemyType == EnemyType.Leviathan)
+            {
+                if (Enemy.Eid.Dead)
+                {
+                    return;
+                }
+            }
             Enemy.InstaDestroy();
         }
 
@@ -435,19 +544,24 @@ namespace Nyxpiri.ULTRAKILL.CybergrindBosses
         private SisyphusPrime sisyprime;
         private GabrielBase garbage;
         private FleshPrison prison;
+        private Geryon gery;
         private MinosBoss minos;
         FixedTimeStamp symbioteSaveStart;
         private FixedTimeStamp waitingToDestroyTimestamp;
         private float waitingToDestroyTime = -1.0f;
         private bool leviathanSecondPhaseEventCalled = false;
         private float levSpawnHookPointsTimer = -1.0f;
+        private float levDestroyFloorTimer = -1.0f;
+        private float levDeathLaunchPlayerTimer = -1.0f;
         private float _verticalShiftVelocity = 0.0f;
+        private Vector3 _minosTargetPos;
 
         public bool IsTundraAgony { get; internal set; }
         public EnemyComponents Symbiote { get; private set; }
         public SwordsMachine SymbioteSm { get; private set; }
         public Rigidbody SymbioteRb { get; private set; }
         public List<GameObject> GameObjectsToDestroy { get; private set; } = new List<GameObject>();
+        public int RemainingEnemies => EndlessGrid.Instance.enemyAmount - EndlessGrid.Instance.GetComponent<ActivateNextWave>().deadEnemies;
 
         protected void OnDestroy()
         {
@@ -463,20 +577,12 @@ namespace Nyxpiri.ULTRAKILL.CybergrindBosses
             {
                 waitingToDestroyTime = 3.5f;
                 waitingToDestroyTimestamp.UpdateToNow();
-                if (NewMovement.Instance.transform.position.y < 75.0f && lev.secondPhase)
-                {
-                    NewMovement.Instance.gc.heavyFall = false;
-                }
-
-                if (NewMovement.Instance.transform.position.y < 120.0f && lev.secondPhase)
-                {
-                    NewMovement.Instance.LaunchUp(75.0f);
-                }
+                levDeathLaunchPlayerTimer = 0.4f;
             }
 
             if (Enemy.Eid.enemyType == EnemyType.Minos)
             {
-                waitingToDestroyTime = 1.5f;
+                waitingToDestroyTime = 1.75f;
                 waitingToDestroyTimestamp.UpdateToNow();
             }
 
@@ -490,6 +596,28 @@ namespace Nyxpiri.ULTRAKILL.CybergrindBosses
             {
                 waitingToDestroyTime = 0.5f;
                 waitingToDestroyTimestamp.UpdateToNow();
+            }
+
+            if (gery != null)
+            {
+                waitingToDestroyTime = 0.5f;
+                waitingToDestroyTimestamp.UpdateToNow();
+            }
+        }
+
+        private void LevDeathLaunchPlayer()
+        {
+            if (NewMovement.Instance.transform.position.y < 75.0f && lev.secondPhase)
+            {
+                NewMovement.Instance.gc.heavyFall = false;
+            }
+
+            if (NewMovement.Instance.transform.position.y < 120.0f && lev.secondPhase)
+            {
+                var playerHorizontalPos = NewMovement.Instance.transform.position;
+                playerHorizontalPos.Scale(new Vector3(1.0f, 0.0f, 1.0f));
+
+                NewMovement.Instance.Launch((Vector3.up * 100.0f + (((CybergrindBosses.cgCenter - playerHorizontalPos)).normalized * (Vector3.Distance(CybergrindBosses.cgCenter, playerHorizontalPos) * 0.4f))).normalized, Vector3.Distance(CybergrindBosses.cgCenter, playerHorizontalPos) * 0.65f, true);
             }
         }
 

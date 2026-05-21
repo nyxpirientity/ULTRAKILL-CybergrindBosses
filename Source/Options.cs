@@ -31,9 +31,13 @@ namespace Nyxpiri.ULTRAKILL.CybergrindBosses
         public static ConfigEntry<float> PointsRatioAllocatedToBosses { get; private set; } = null;
         public static ConfigEntry<int> BossSpawnIterations { get; private set; } = null;
 
-        public static ConfigEntry<float> BloodTreeFillSpeedBase = null;
+        public static ConfigEntry<float> BloodTreeEnemyCountFillSpeedBase = null;
+        public static ConfigEntry<float> BloodTreeWaveHpFillSpeedBase = null;
+        public static ConfigEntry<float> BloodTreeFillSpeedBlend = null;
         public static ConfigEntry<float> BloodTreeCatcherRadius = null;
         public static ConfigEntry<float> BloodTreeCatcherHeight = null;
+
+        public static ConfigEntry<float> FleshPrisonInsigniaSizeScalar { get; private set; }
 
         internal static void Initialize(BaseUnityPlugin plugin)
         {
@@ -48,11 +52,12 @@ namespace Nyxpiri.ULTRAKILL.CybergrindBosses
             PointsRatioAllocatedToBosses = _config.Bind("General", "PointsRatioAllocatedToBosses", 0.5f);
             BossSpawnIterations = _config.Bind("General", "BossSpawnIterations", 50);
 
-            // AddEnemyType(EnemyType.Geryon, true, 1, 1, true, 1.0f, 0, 0.0f, 1.0f, 0.0f);
+            AddEnemyType(EnemyType.Geryon, false, 1000, 1, true, 0.5f, 70, 5.0f, 2.0f, 1.0f);
             AddEnemyType(EnemyType.CancerousRodent, true, 150, 1, true, 1.0f, 10, 0.0f, 1.0f, 0.0f);
             AddEnemyType(EnemyType.VeryCancerousRodent, true, 250, 30, true, 1.0f, 15, 0.0f, 1.0f, 0.0f);
+            AddEnemyType(EnemyType.Mandalore, true, 350, 40, true, 1.0f, 30, 0.25f, 1.0f, 0.5f);
             AddEnemyType(EnemyVariants.TundraAgonyType, true, 15, 3, true, 1.0f, 3, 0.5f, 1.0f, 1.0f);
-            AddEnemyType(EnemyVariants.BloodTree, true, 100, 30, true, 1.0f, 4, 0.5f, 1.0f, 0.1f);
+            AddEnemyType(EnemyVariants.BloodTree, true, 75, 20, true, 1.0f, 4, 0.5f, 1.0f, 0.1f);
             AddEnemyType(EnemyType.V2, true, 20, 5, true, 1.0f, 3, 0.5f, 1.0f, 1.0f);
             AddEnemyType(EnemyType.V2Second, true, 30, 10, true, 1.0f, 3, 0.5f, 1.0f, 1.0f);
             AddEnemyType(EnemyType.Gabriel, true, 35, 10, true, 1.0f, 4, 0.5f, 1.0f, 1.0f);
@@ -65,9 +70,13 @@ namespace Nyxpiri.ULTRAKILL.CybergrindBosses
             AddEnemyType(EnemyType.MinosPrime, true, 225, 40, true, 1.0f, 5, 0.5f, 1.0f, 1.0f);
             AddEnemyType(EnemyType.SisyphusPrime, true, 250, 50, true, 1.0f, 6, 0.5f, 1.0f, 1.0f);
 
-            BloodTreeFillSpeedBase = _config.Bind("BloodTree", "FillSpeedBase", 1.75f);
-            BloodTreeCatcherRadius = _config.Bind("BloodTree", "BloodCatcherRadius", 14.0f);
-            BloodTreeCatcherHeight = _config.Bind("BloodTree", "BloodCatcherHeight", 30.0f);
+            BloodTreeEnemyCountFillSpeedBase = _config.Bind("BloodTree", "EnemyCountFillSpeedBase", 1.75f);
+            BloodTreeWaveHpFillSpeedBase = _config.Bind("BloodTree", "WaveHpFillSpeedBase", 85.0f);
+            BloodTreeFillSpeedBlend = _config.Bind("BloodTree", "FillSpeedBlend", 0.65f);
+            BloodTreeCatcherRadius = _config.Bind("BloodTree", "BloodCatcherRadius", 12.0f);
+            BloodTreeCatcherHeight = _config.Bind("BloodTree", "BloodCatcherHeight", 46.0f);
+
+            FleshPrisonInsigniaSizeScalar = _config.Bind("FleshPrisons", "InsigniaSizeScalar", 0.5f);
         }
 
         private static void AddEnemyType(EnemyType enemyType, bool enabled, int spawnCost, int spawnWave, bool showBossBar, float healthScalar, int spawnCooldown, float spawnCostBonusScalar, float spawnCostRequirementScalar, float spawnCostSpentScalar)

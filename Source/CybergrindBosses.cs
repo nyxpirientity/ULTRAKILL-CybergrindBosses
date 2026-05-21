@@ -31,6 +31,11 @@ namespace Nyxpiri.ULTRAKILL.CybergrindBosses
             };
 
             Harmony.CreateAndPatchAll(GetType().Assembly);
+
+            CenterGameObject = new GameObject();
+            CenterGameObject.transform.parent = transform;
+            GeryonRotateAroundGameObject = new GameObject();
+            GeryonRotateAroundGameObject.transform.parent = CenterGameObject.transform;
         }
 
         public const string CheatID = "nyxpiri.cybergrind-bosses";
@@ -40,6 +45,10 @@ namespace Nyxpiri.ULTRAKILL.CybergrindBosses
         internal static int EnemyAmountToAdd { get; set; } = 0;
         public static Vector3 cgCenter = new Vector3(0.0f, 0.0f, 62.5f);
         private Dictionary<NyxLib.AEnemyType, int> SpawnCooldowns = new Dictionary<NyxLib.AEnemyType, int>();
+
+        private static GameObject CenterGameObject = null;
+        private static GameObject GeryonRotateAroundGameObject = null;
+        public static Transform CenterFloorTransform => CenterGameObject.transform;
 
         private void NextWave(EventMethodCancelInfo cancelInfo, EndlessGrid endlessGrid)
         {
@@ -205,6 +214,9 @@ namespace Nyxpiri.ULTRAKILL.CybergrindBosses
                 centerFloorPos = hit.collider != null ? (hit.point) : cgCenter;
             }
 
+            CenterFloorTransform.position = centerFloorPos;
+            GeryonRotateAroundGameObject.transform.localPosition = Vector3.up * 50.0f;
+
             spawnTimer -= Time.fixedDeltaTime;
 
             if (spawnTimer <= 0.0f)
@@ -317,6 +329,10 @@ namespace Nyxpiri.ULTRAKILL.CybergrindBosses
                         }
 
                         var lev = enemyGo.GetComponent<LeviathanController>();
+                    }
+                    else if (typeToSpawn.VanillaEnumValue == EnemyType.Geryon)
+                    {
+                        enemyGo.transform.position = spawnPos + Vector3.back * 125.0f + Vector3.up * 40.0f;
                     }
                     else
                     {

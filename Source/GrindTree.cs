@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using Nyxpiri.ULTRAKILL.NyxLib;
 using UnityEngine;
 
@@ -17,6 +18,7 @@ namespace Nyxpiri.ULTRAKILL.CybergrindBosses
         public Deathcatcher Deathcatcher { get; private set; } = null;
 
         public int NumEnemies => (Eg.enemyAmount - Anw.deadEnemies);
+        public float TotalWaveHP = 0.0f;
 
         protected void Awake()
         {
@@ -93,9 +95,30 @@ namespace Nyxpiri.ULTRAKILL.CybergrindBosses
                 FieldAccess<Deathcatcher, GameObject> deathParticleFA = new FieldAccess<Deathcatcher, GameObject>("deathParticle");
                 var deathParticle = UnityEngine.Object.Instantiate(deathParticleFA.GetValue(Deathcatcher), transform.position + Vector3.up * 8.0f, Quaternion.identity, _goreZone.gibZone);
                 deathParticle.SetActive(true);
-                deathParticle.transform.localScale *= 2.0f;
                 var explosion = deathParticle.GetComponentInChildren<Explosion>();
                 explosion.pushForceMultiplier = 0.0f;
+
+                for (int i = 0; i < 8; i++)
+                {
+                    var blood = BloodsplatterManager.Instance.GetGore(GoreType.Head, false, false, false, i == 3 ? DeathcatcherEnemy.Eid : null);
+                    if (!blood)
+                    {
+                        break;
+                    }
+
+                    blood.transform.position = transform.position + (Vector3.up * (4 * i));
+                    if (_goreZone.goreZone != null)
+                    {
+                        blood.transform.SetParent(_goreZone.goreZone, true);
+                    }
+
+                    blood.SetActive(value: true);
+                    if (blood.TryGetComponent<Bloodsplatter>(out var splatter))
+                    {
+                        splatter.GetReady();
+                    }
+                }
+
                 DeathcatcherEnemy.InstaDestroy();
             }
 
@@ -112,9 +135,33 @@ namespace Nyxpiri.ULTRAKILL.CybergrindBosses
             Destroy(gameObject);
         }
 
+        HashSet<EnemyIdentifier> _trackedEnemies = new HashSet<EnemyIdentifier>();
         protected void FixedUpdate()
         {
-            Bf.fillSpeed = Options.BloodTreeFillSpeedBase.Value / Mathf.Max(EndlessGrid.Instance.enemyAmount, 5.0f);
+            var enemies = EnemyTracker.Instance.GetCurrentEnemies();
+
+            foreach (var enemy in enemies)
+            {
+                if (_trackedEnemies.Contains(enemy))
+                {
+                    continue;
+                }
+
+                if (enemy.puppet || enemy.dead)
+                {
+                    continue;
+                }
+
+                _trackedEnemies.Add(enemy);
+                TotalWaveHP += enemy.GetComponent<EnemyComponents>().HighestHealth;
+            }
+
+            var enemyCountBasedFillspeed = Options.BloodTreeEnemyCountFillSpeedBase.Value / Mathf.Max(EndlessGrid.Instance.enemyAmount, 5.0f);
+            var waveHpBasedFillspeed = Options.BloodTreeWaveHpFillSpeedBase.Value / Mathf.Max(TotalWaveHP, 10.0f);
+
+            Bf.fillSpeed = Mathf.Lerp(enemyCountBasedFillspeed, waveHpBasedFillspeed, Options.BloodTreeFillSpeedBlend.Value);
+
+
             if (NumEnemies <= 3)
             {
                 if (SpawnFailsafeFilthTimestamp.TimeSince >= Mathf.Clamp(30.0f / ((float)StartTimestamp.TimeSince + 1.0f), 0.5f, 40.0f))
