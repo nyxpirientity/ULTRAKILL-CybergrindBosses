@@ -21,6 +21,7 @@ namespace Nyxpiri.ULTRAKILL.CybergrindBosses
             public ConfigEntry<int> SpawnWave = null;
             public ConfigEntry<float> HealthScalar = null;
             public ConfigEntry<int> SpawnCooldown = null;
+            public ConfigEntry<int> IndividualCostIncreasePerSpawn = null;
 
             public ConfigEntry<bool> ShowBossBar { get; internal set; }
         }
@@ -55,28 +56,214 @@ namespace Nyxpiri.ULTRAKILL.CybergrindBosses
 
             PointsRatioAllocatedToBosses = _config.Bind("General", "PointsRatioAllocatedToBosses", 0.5f);
             BossSpawnIterations = _config.Bind("General", "BossSpawnIterations", 50);
-            BossWaveCooldownMin = _config.Bind("General", "GlobalBossWaveCooldownMin", 1);
-            BossWaveCooldownMax = _config.Bind("General", "GlobalBossWaveCooldownMax", 1);
+            BossWaveCooldownMin = _config.Bind("General", "GlobalBossWaveCooldownMin", 2);
+            BossWaveCooldownMax = _config.Bind("General", "GlobalBossWaveCooldownMax", 2);
             UseBossWaveCooldown = _config.Bind("General", "UseGlobalBossWaveCooldown", true);
             OnlyCountBossWavesTowardsBossCooldowns = _config.Bind("General", "OnlyCountBossWavesTowardsBossCooldowns", true);
 
-            AddEnemyType(EnemyType.Geryon, false, 1000, 1, true, 0.5f, 70, 5.0f, 2.0f, 1.0f);
-            AddEnemyType(EnemyType.CancerousRodent, true, 150, 1, true, 1.0f, 10, 0.0f, 1.0f, 0.0f);
-            AddEnemyType(EnemyType.VeryCancerousRodent, true, 250, 30, true, 1.0f, 15, 0.0f, 1.0f, 0.0f);
-            AddEnemyType(EnemyType.Mandalore, true, 350, 40, true, 1.0f, 30, 0.25f, 1.0f, 0.5f);
-            AddEnemyType(EnemyVariants.TundraAgonyType, true, 15, 3, true, 1.0f, 3, 0.5f, 1.0f, 1.0f);
-            AddEnemyType(EnemyVariants.BloodTree, true, 75, 20, true, 1.0f, 4, 0.5f, 1.0f, 0.1f);
-            AddEnemyType(EnemyType.V2, true, 20, 5, true, 1.0f, 3, 0.5f, 1.0f, 1.0f);
-            AddEnemyType(EnemyType.V2Second, true, 30, 10, true, 1.0f, 3, 0.5f, 1.0f, 1.0f);
-            AddEnemyType(EnemyType.Gabriel, true, 35, 10, true, 1.0f, 4, 0.5f, 1.0f, 1.0f);
-            AddEnemyType(EnemyType.GabrielSecond, true, 105, 20, true, 1.0f, 4, 0.5f, 1.0f, 1.0f);
-            AddEnemyType(EnemyType.Leviathan, true, 88, 18, true, 1.0f, 6, 0.5f, 1.0f, 1.0f);
-            AddEnemyType(EnemyType.Minos, true, 60, 15, true, 1.0f, 8, 0.5f, 1.0f, 1.0f);
-            AddEnemyType(EnemyType.Minotaur, true, 150, 40, true, 1.0f, 3, 0.5f, 1.0f, 1.0f);
-            AddEnemyType(EnemyType.FleshPrison, true, 175, 40, true, 0.6f, 5, 0.5f, 1.0f, 1.0f);
-            AddEnemyType(EnemyType.FleshPanopticon, true, 325, 50, true, 0.6f, 5, 0.5f, 1.0f, 1.0f);
-            AddEnemyType(EnemyType.MinosPrime, true, 225, 40, true, 1.0f, 5, 0.5f, 1.0f, 1.0f);
-            AddEnemyType(EnemyType.SisyphusPrime, true, 250, 50, true, 1.0f, 6, 0.5f, 1.0f, 1.0f);
+            AddEnemyType(enemyType: EnemyType.Geryon,
+                         enabled: false,
+                         spawnCost: 1000,
+                         spawnWave: 1,
+                         showBossBar: true,
+                         healthScalar: 0.5f,
+                         spawnCooldown: 70,
+                         spawnCostBonusScalar: 5.0f,
+                         spawnCostRequirementScalar: 2.0f,
+                         spawnCostSpentScalar: 1.0f,
+                         individualCostIncreasePerSpawn: 10000);
+
+            AddEnemyType(enemyType: EnemyType.CancerousRodent,
+                         enabled: true,
+                         spawnCost: 150,
+                         spawnWave: 1,
+                         showBossBar: true,
+                         healthScalar: 1.0f,
+                         spawnCooldown: 10,
+                         spawnCostBonusScalar: 0.0f,
+                         spawnCostRequirementScalar: 1.0f,
+                         spawnCostSpentScalar: 0.0f,
+                         individualCostIncreasePerSpawn: 10000);
+
+            AddEnemyType(enemyType: EnemyType.VeryCancerousRodent,
+                         enabled: true,
+                         spawnCost: 250,
+                         spawnWave: 30,
+                         showBossBar: true,
+                         healthScalar: 1.0f,
+                         spawnCooldown: 15,
+                         spawnCostBonusScalar: 0.0f,
+                         spawnCostRequirementScalar: 1.0f,
+                         spawnCostSpentScalar: 0.0f,
+                         individualCostIncreasePerSpawn: 10000);
+
+            AddEnemyType(enemyType: EnemyType.Mandalore,
+                         enabled: true,
+                         spawnCost: 350,
+                         spawnWave: 40,
+                         showBossBar: true,
+                         healthScalar: 1.0f,
+                         spawnCooldown: 30,
+                         spawnCostBonusScalar: 0.25f,
+                         spawnCostRequirementScalar: 1.0f,
+                         spawnCostSpentScalar: 0.5f,
+                         individualCostIncreasePerSpawn: 10000);
+
+            AddEnemyType(enemyType: EnemyVariants.TundraAgonyType,
+                         enabled: true,
+                         spawnCost: 15,
+                         spawnWave: 3,
+                         showBossBar: true,
+                         healthScalar: 1.0f,
+                         spawnCooldown: 3,
+                         spawnCostBonusScalar: 0.5f,
+                         spawnCostRequirementScalar: 1.0f,
+                         spawnCostSpentScalar: 1.0f,
+                         individualCostIncreasePerSpawn: 10000);
+
+            AddEnemyType(enemyType: EnemyVariants.BloodTree,
+                         enabled: true,
+                         spawnCost: 75,
+                         spawnWave: 20,
+                         showBossBar: true,
+                         healthScalar: 1.0f,
+                         spawnCooldown: 4,
+                         spawnCostBonusScalar: 0.5f,
+                         spawnCostRequirementScalar: 1.0f,
+                         spawnCostSpentScalar: 0.1f,
+                         individualCostIncreasePerSpawn: 10000);
+
+            AddEnemyType(enemyType: EnemyType.V2,
+                         enabled: true,
+                         spawnCost: 20,
+                         spawnWave: 5,
+                         showBossBar: true,
+                         healthScalar: 1.0f,
+                         spawnCooldown: 3,
+                         spawnCostBonusScalar: 0.5f,
+                         spawnCostRequirementScalar: 1.0f,
+                         spawnCostSpentScalar: 1.0f,
+                         individualCostIncreasePerSpawn: 10000);
+
+            AddEnemyType(enemyType: EnemyType.V2Second,
+                         enabled: true,
+                         spawnCost: 30,
+                         spawnWave: 10,
+                         showBossBar: true,
+                         healthScalar: 1.0f,
+                         spawnCooldown: 3,
+                         spawnCostBonusScalar: 0.5f,
+                         spawnCostRequirementScalar: 1.0f,
+                         spawnCostSpentScalar: 1.0f,
+                         individualCostIncreasePerSpawn: 10000);
+
+            AddEnemyType(enemyType: EnemyType.Gabriel,
+                         enabled: true,
+                         spawnCost: 35,
+                         spawnWave: 10,
+                         showBossBar: true,
+                         healthScalar: 1.0f,
+                         spawnCooldown: 4,
+                         spawnCostBonusScalar: 0.5f,
+                         spawnCostRequirementScalar: 1.0f,
+                         spawnCostSpentScalar: 1.0f,
+                         individualCostIncreasePerSpawn: 10000);
+
+            AddEnemyType(enemyType: EnemyType.GabrielSecond,
+                         enabled: true,
+                         spawnCost: 105,
+                         spawnWave: 20,
+                         showBossBar: true,
+                         healthScalar: 1.0f,
+                         spawnCooldown: 4,
+                         spawnCostBonusScalar: 0.5f,
+                         spawnCostRequirementScalar: 1.0f,
+                         spawnCostSpentScalar: 1.0f,
+                         individualCostIncreasePerSpawn: 10000);
+
+            AddEnemyType(enemyType: EnemyType.Leviathan,
+                         enabled: true,
+                         spawnCost: 88,
+                         spawnWave: 18,
+                         showBossBar: true,
+                         healthScalar: 1.0f,
+                         spawnCooldown: 6,
+                         spawnCostBonusScalar: 0.5f,
+                         spawnCostRequirementScalar: 1.0f,
+                         spawnCostSpentScalar: 1.0f,
+                         individualCostIncreasePerSpawn: 10000);
+
+            AddEnemyType(enemyType: EnemyType.Minos,
+                         enabled: true,
+                         spawnCost: 60,
+                         spawnWave: 15,
+                         showBossBar: true,
+                         healthScalar: 1.0f,
+                         spawnCooldown: 8,
+                         spawnCostBonusScalar: 0.5f,
+                         spawnCostRequirementScalar: 1.0f,
+                         spawnCostSpentScalar: 1.0f,
+                         individualCostIncreasePerSpawn: 10000);
+
+            AddEnemyType(enemyType: EnemyType.Minotaur,
+                         enabled: true,
+                         spawnCost: 150,
+                         spawnWave: 40,
+                         showBossBar: true,
+                         healthScalar: 1.0f,
+                         spawnCooldown: 3,
+                         spawnCostBonusScalar: 0.5f,
+                         spawnCostRequirementScalar: 1.0f,
+                         spawnCostSpentScalar: 1.0f,
+                         individualCostIncreasePerSpawn: 10000);
+
+            AddEnemyType(enemyType: EnemyType.FleshPrison,
+                         enabled: true,
+                         spawnCost: 175,
+                         spawnWave: 40,
+                         showBossBar: true,
+                         healthScalar: 0.6f,
+                         spawnCooldown: 5,
+                         spawnCostBonusScalar: 0.5f,
+                         spawnCostRequirementScalar: 1.0f,
+                         spawnCostSpentScalar: 1.0f,
+                         individualCostIncreasePerSpawn: 10000);
+
+            AddEnemyType(enemyType: EnemyType.FleshPanopticon,
+                         enabled: true,
+                         spawnCost: 325,
+                         spawnWave: 50,
+                         showBossBar: true,
+                         healthScalar: 0.6f,
+                         spawnCooldown: 5,
+                         spawnCostBonusScalar: 0.5f,
+                         spawnCostRequirementScalar: 1.0f,
+                         spawnCostSpentScalar: 1.0f,
+                         individualCostIncreasePerSpawn: 10000);
+
+            AddEnemyType(enemyType: EnemyType.MinosPrime,
+                         enabled: true,
+                         spawnCost: 225,
+                         spawnWave: 40,
+                         showBossBar: true,
+                         healthScalar: 1.0f,
+                         spawnCooldown: 5,
+                         spawnCostBonusScalar: 0.5f,
+                         spawnCostRequirementScalar: 1.0f,
+                         spawnCostSpentScalar: 1.0f,
+                         individualCostIncreasePerSpawn: 10000);
+
+            AddEnemyType(enemyType: EnemyType.SisyphusPrime,
+                         enabled: true,
+                         spawnCost: 250,
+                         spawnWave: 50,
+                         showBossBar: true,
+                         healthScalar: 1.0f,
+                         spawnCooldown: 6,
+                         spawnCostBonusScalar: 0.5f,
+                         spawnCostRequirementScalar: 1.0f,
+                         spawnCostSpentScalar: 1.0f,
+                         individualCostIncreasePerSpawn: 10000);
 
             BloodTreeEnemyCountFillSpeedBase = _config.Bind("BloodTree", "EnemyCountFillSpeedBase", 1.75f);
             BloodTreeWaveHpFillSpeedBase = _config.Bind("BloodTree", "WaveHpFillSpeedBase", 85.0f);
@@ -87,12 +274,12 @@ namespace Nyxpiri.ULTRAKILL.CybergrindBosses
             FleshPrisonInsigniaSizeScalar = _config.Bind("FleshPrisons", "InsigniaSizeScalar", 0.5f);
         }
 
-        private static void AddEnemyType(EnemyType enemyType, bool enabled, int spawnCost, int spawnWave, bool showBossBar, float healthScalar, int spawnCooldown, float spawnCostBonusScalar, float spawnCostRequirementScalar, float spawnCostSpentScalar)
+        private static void AddEnemyType(EnemyType enemyType, bool enabled, int spawnCost, int spawnWave, bool showBossBar, float healthScalar, int spawnCooldown, float spawnCostBonusScalar, float spawnCostRequirementScalar, float spawnCostSpentScalar, int individualCostIncreasePerSpawn)
         {
-            AddEnemyType(EnemyTypeDB.Instance.GetVanillaType(enemyType), enabled, spawnCost, spawnWave, showBossBar, healthScalar, spawnCooldown, spawnCostBonusScalar, spawnCostRequirementScalar, spawnCostSpentScalar);
+            AddEnemyType(EnemyTypeDB.Instance.GetVanillaType(enemyType), enabled, spawnCost, spawnWave, showBossBar, healthScalar, spawnCooldown, spawnCostBonusScalar, spawnCostRequirementScalar, spawnCostSpentScalar, individualCostIncreasePerSpawn);
         }
 
-        private static void AddEnemyType(NyxLib.AEnemyType enemyType, bool enabled, int spawnCost, int spawnWave, bool showBossBar, float healthScalar, int spawnCooldown, float spawnCostBonusScalar, float spawnCostRequirementScalar, float spawnCostSpentScalar)
+        private static void AddEnemyType(NyxLib.AEnemyType enemyType, bool enabled, int spawnCost, int spawnWave, bool showBossBar, float healthScalar, int spawnCooldown, float spawnCostBonusScalar, float spawnCostRequirementScalar, float spawnCostSpentScalar, int individualCostIncreasePerSpawn)
         {
             if (EnemyEntries.ContainsKey(enemyType))
             {
@@ -110,6 +297,7 @@ namespace Nyxpiri.ULTRAKILL.CybergrindBosses
             entry.SpawnCostBonusScalar = _config.Bind($"{enemyType}", $"SpawnCostBonusScalar", spawnCostBonusScalar);
             entry.SpawnCostRequirementScalar = _config.Bind($"{enemyType}", $"SpawnCostRequirementScalar", spawnCostRequirementScalar);
             entry.SpawnCostSpentScalar = _config.Bind($"{enemyType}", $"SpawnCostSpentScalar", spawnCostSpentScalar);
+            entry.IndividualCostIncreasePerSpawn = _config.Bind($"{enemyType}", $"IndividualCostIncreasePerSpawn", individualCostIncreasePerSpawn);
 
             EnemyEntries.Add(enemyType, entry);
         }

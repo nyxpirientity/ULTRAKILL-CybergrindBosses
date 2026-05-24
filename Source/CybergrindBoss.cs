@@ -113,7 +113,7 @@ namespace Nyxpiri.ULTRAKILL.CybergrindBosses
             if (gery != null)
             {
                 FieldAccess<Geryon, Transform> rotateAroundFA = new FieldAccess<Geryon, Transform>("rotateAround");
-                rotateAroundFA.SetValue(gery, CybergrindBosses.CenterFloorTransform);
+                //rotateAroundFA.SetValue(gery, CyberArena.Instance.FloorCenter);
                 gery.gameObject.AddComponent<GeryonTweaks>();
             }
         }
@@ -155,7 +155,7 @@ namespace Nyxpiri.ULTRAKILL.CybergrindBosses
                     var dist = Vector3.Distance(CybergrindBosses.cgCenter, horizontalPos);
                     rb.velocity = Vector3.up * (dist * 2.15f) + ((CybergrindBosses.cgCenter - horizontalPos).normalized) * 1.5f * dist;
                     */
-                    rb.velocity = Vector3.up * 80.0f + ((CybergrindBosses.cgCenter - horizontalPos).normalized) * 35.0f;
+                    rb.velocity = Vector3.up * 80.0f + ((CyberArena.HorizontalCenter - horizontalPos).normalized) * 35.0f;
                     lastBoostHelperTimestamp.UpdateToNow();
                     if (v2 != null)
                     {
@@ -192,7 +192,7 @@ namespace Nyxpiri.ULTRAKILL.CybergrindBosses
                     Enemy.Eid.SimpleDamage(10.0f);
                     var ouchieParticle = GameObject.Instantiate(deathParticle, transform.position, Quaternion.identity, EndlessGrid.Instance.transform);
                     ouchieParticle.SetActive(true);
-                    sisyprime.transform.position = CybergrindBosses.cgCenter + Vector3.up * 100.0f;
+                    sisyprime.transform.position = CyberArena.HorizontalCenter + Vector3.up * 100.0f;
                 }
                 else if (minosP != null)
                 {
@@ -200,7 +200,7 @@ namespace Nyxpiri.ULTRAKILL.CybergrindBosses
                     Enemy.Eid.SimpleDamage(7.0f);
                     var ouchieParticle = GameObject.Instantiate(deathParticle, transform.position, Quaternion.identity, EndlessGrid.Instance.transform);
                     ouchieParticle.SetActive(true);
-                    minosP.transform.position = CybergrindBosses.cgCenter + Vector3.up * 100.0f;
+                    minosP.transform.position = CyberArena.HorizontalCenter + Vector3.up * 100.0f;
                 }
             }
 
@@ -421,7 +421,7 @@ namespace Nyxpiri.ULTRAKILL.CybergrindBosses
 
                 lev.stat.health *= 0.5f;
 
-                var explosion = GameObject.Instantiate(NyxLib.Assets.ExplosionPrefab, CybergrindBosses.cgCenter, Quaternion.identity);
+                var explosion = GameObject.Instantiate(NyxLib.Assets.ExplosionPrefab, CyberArena.HorizontalCenter, Quaternion.identity);
                 var eadd = explosion.GetComponent<ExplosionAdditions>();
                 eadd.Harmless = true;
                 eadd.ExplosionScale = 20.0f;
@@ -617,7 +617,7 @@ namespace Nyxpiri.ULTRAKILL.CybergrindBosses
                 var playerHorizontalPos = NewMovement.Instance.transform.position;
                 playerHorizontalPos.Scale(new Vector3(1.0f, 0.0f, 1.0f));
 
-                NewMovement.Instance.Launch((Vector3.up * 100.0f + (((CybergrindBosses.cgCenter - playerHorizontalPos)).normalized * (Vector3.Distance(CybergrindBosses.cgCenter, playerHorizontalPos) * 0.4f))).normalized, Vector3.Distance(CybergrindBosses.cgCenter, playerHorizontalPos) * 0.65f, true);
+                NewMovement.Instance.Launch((Vector3.up * 100.0f + (((CyberArena.HorizontalCenter - playerHorizontalPos)).normalized * (Vector3.Distance(CyberArena.HorizontalCenter, playerHorizontalPos) * 0.4f))).normalized, Vector3.Distance(CyberArena.HorizontalCenter, playerHorizontalPos) * 0.65f, true);
             }
         }
 
