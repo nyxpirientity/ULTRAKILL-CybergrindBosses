@@ -35,9 +35,12 @@ namespace Nyxpiri.ULTRAKILL.CybergrindBosses
             int maxPoints = Mathf.FloorToInt(allPoints * Options.PointsRatioAllocatedToBosses.Value);
             int points = maxPoints;
             int spawnCostBonus = 0;
+            int spawnCostBonusSpent = 0;
             Dictionary<NyxLib.AEnemyType, int> individualSpawnCostBonuses = new Dictionary<NyxLib.AEnemyType, int>();
 
             Log.Debug($"deciding bosses to spawn with {points} points (allPoints = {allPoints})");
+
+            HashSet<AEnemyType> deniedList = new HashSet<AEnemyType>();
 
             for (int i = 0; i < Options.BossSpawnIterations.Value && points > 0; i++)
             {
@@ -68,9 +71,21 @@ namespace Nyxpiri.ULTRAKILL.CybergrindBosses
                 var baseSpawnCost = entry.SpawnCost.Value;
                 var spawnCost = baseSpawnCost + spawnCostBonus + individualSpawnCostBonuses[entryRaw.Key] + SpawnCostBoosts[entryRaw.Key];
                 var boostPercentage = NyxMath.NormalizeToRange(SpawnCostBoosts[entryRaw.Key], 0, entryRaw.Value.IndividualPersistentSpawnCostBoostMax.Value);
+                var spawnCostToSpend = (int)(baseSpawnCost * entry.SpawnCostSpentScalar.Value) + spawnCostBonusSpent;
 
-                if (UnityEngine.Random.Range(0.0f, 1.0f) >= boostPercentage)
+                if (entryRaw.Value.IndividualPersistentSpawnCostBoostMax.Value == 0)
                 {
+                    boostPercentage = 0;
+                }
+
+                if (deniedList.Contains(entryRaw.Key))
+                {
+                    continue;
+                }
+
+                if (UnityEngine.Random.Range(0.0f, 1.0f) < boostPercentage)
+                {
+                    deniedList.Add(entryRaw.Key);
                     continue;
                 }
 
@@ -92,8 +107,10 @@ namespace Nyxpiri.ULTRAKILL.CybergrindBosses
                     }
                 }
 
+                SpawnedLastWave.Add(entryRaw.Key);
+                points -= spawnCostToSpend;
                 spawnCostBonus += (int)(baseSpawnCost * entry.SpawnCostBonusScalar.Value);
-                points -= (int)(baseSpawnCost * entry.SpawnCostSpentScalar.Value);
+                spawnCostBonusSpent += (int)(baseSpawnCost * entry.SpawnCostBonusSpentScalar.Value);
                 TypesToSpawn.Enqueue(entryRaw.Key);
                 EnemyAmountToAdd += 1;
                 individualSpawnCostBonuses[entryRaw.Key] += entry.IndividualCostIncreasePerSpawn.Value;
@@ -119,10 +136,23 @@ namespace Nyxpiri.ULTRAKILL.CybergrindBosses
                 newSpawnCooldowns[key] -= 1;
             }
 
+            Dictionary<AEnemyType, int> newSpawnCostBoosts = new Dictionary<AEnemyType, int>(SpawnCostBoosts);
+            foreach (var key in SpawnCostBoosts.Keys)
+            {
+                if (SpawnedLastWave.Contains(key))
+                {
+                    continue;
+                }
+                newSpawnCostBoosts[key] -= Options.EnemyEntries[key].IndividualPersistentSpawnCostBoostDecay.Value;
+                newSpawnCostBoosts[key] = Math.Max(newSpawnCostBoosts[key], 0);
+            }
+
             SpawnCooldowns = newSpawnCooldowns;
+            SpawnCostBoosts = newSpawnCostBoosts;
         }
 
         public Queue<NyxLib.AEnemyType> TypesToSpawn { get; private set; } = new Queue<NyxLib.AEnemyType>();
+        public HashSet<NyxLib.AEnemyType> SpawnedLastWave { get; private set; } = new HashSet<NyxLib.AEnemyType>();
         internal static int EnemyAmountToAdd { get; set; } = 0;
         private Dictionary<NyxLib.AEnemyType, int> SpawnCooldowns = new Dictionary<NyxLib.AEnemyType, int>();
         private Dictionary<NyxLib.AEnemyType, int> SpawnCostBoosts = new Dictionary<NyxLib.AEnemyType, int>();

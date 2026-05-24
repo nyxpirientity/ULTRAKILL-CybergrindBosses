@@ -47,12 +47,12 @@ namespace Nyxpiri.ULTRAKILL.CybergrindBosses
                 _bossPicker.TypesToSpawn.Clear();
             }
 
-            _bossWaveCooldown -= 1;
-
             if (IsBossWave || !Options.OnlyCountBossWavesTowardsBossCooldowns.Value)
             {
                 _bossPicker.UpdateBossCooldowns();
             }
+
+            _bossWaveCooldown -= 1;
         }
 
         protected void FixedUpdate()

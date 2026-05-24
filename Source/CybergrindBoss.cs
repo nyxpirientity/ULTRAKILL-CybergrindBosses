@@ -28,6 +28,11 @@ namespace Nyxpiri.ULTRAKILL.CybergrindBosses
 
             Enemy = GetComponent<EnemyComponents>();
 
+            Enemy.Eid.dontCountAsKills = true;
+            Enemy.PreDeath += PreDeath;
+            Enemy.PostDeath += PostDeath;
+            Enemy.AvoidHealthBasedSlowDown = true;
+
             GameObject rootGo = Enemy.RootGameObject;
 
             var colliders = rootGo.GetComponentsInChildren<Collider>();
@@ -60,11 +65,6 @@ namespace Nyxpiri.ULTRAKILL.CybergrindBosses
             {
                 return;
             }
-
-            Enemy.Eid.dontCountAsKills = true;
-            Enemy.PreDeath += PreDeath;
-            Enemy.PostDeath += PostDeath;
-            Enemy.AvoidHealthBasedSlowDown = true;
 
             garbage = GetComponentInChildren<GabrielBase>();
 
