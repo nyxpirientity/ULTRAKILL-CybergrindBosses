@@ -51,7 +51,7 @@ namespace Nyxpiri.ULTRAKILL.CybergrindBosses
 
                 if (!entry.Enabled.Value)
                 {
-                    Log.Debug($"{entryRaw.Key} DENIED on the basis of being not enabled");
+                    //Log.Debug($"{entryRaw.Key} DENIED on the basis of being not enabled");
                     continue;
                 }
 
@@ -62,7 +62,7 @@ namespace Nyxpiri.ULTRAKILL.CybergrindBosses
 
                 if (wave < entry.SpawnWave.Value)
                 {
-                    Log.Debug($"{entryRaw.Key} DENIED on the basis of wave {wave} being less than {entry.SpawnWave.Value}");
+                    //Log.Debug($"{entryRaw.Key} DENIED on the basis of wave {wave} being less than {entry.SpawnWave.Value}");
                     continue;
                 }
 
@@ -91,13 +91,11 @@ namespace Nyxpiri.ULTRAKILL.CybergrindBosses
 
                 if (points < (spawnCost * entry.SpawnCostRequirementScalar.Value))
                 {
-                    Log.Debug($"{entryRaw.Key} DENIED on the basis of {points} being less than {spawnCost * entry.SpawnCostRequirementScalar.Value}");
+                    //Log.Debug($"{entryRaw.Key} DENIED on the basis of {points} being less than {spawnCost * entry.SpawnCostRequirementScalar.Value}");
                     continue;
                 }
 
                 SpawnCooldowns[entryRaw.Key] = entryRaw.Value.SpawnCooldown.Value;
-                SpawnCostBoosts[entryRaw.Key] += entryRaw.Value.IndividualPersistentSpawnCostBoost.Value;
-                SpawnCostBoosts[entryRaw.Key] = Math.Clamp(SpawnCostBoosts[entryRaw.Key], 0, entryRaw.Value.IndividualPersistentSpawnCostBoostMax.Value);
 
                 if (entryRaw.Key.VanillaEnumValue == EnemyType.FleshPanopticon || entryRaw.Key.VanillaEnumValue == EnemyType.FleshPrison)
                 {
@@ -111,9 +109,9 @@ namespace Nyxpiri.ULTRAKILL.CybergrindBosses
                 points -= spawnCostToSpend;
                 spawnCostBonus += (int)(baseSpawnCost * entry.SpawnCostBonusScalar.Value);
                 spawnCostBonusSpent += (int)(baseSpawnCost * entry.SpawnCostBonusSpentScalar.Value);
+                individualSpawnCostBonuses[entryRaw.Key] += entry.IndividualCostIncreasePerSpawn.Value;
                 TypesToSpawn.Enqueue(entryRaw.Key);
                 EnemyAmountToAdd += 1;
-                individualSpawnCostBonuses[entryRaw.Key] += entry.IndividualCostIncreasePerSpawn.Value;
 
                 if (entryRaw.Key == EnemyVariants.TundraAgonyType)
                 {
@@ -121,6 +119,12 @@ namespace Nyxpiri.ULTRAKILL.CybergrindBosses
                 }
 
                 Log.Debug($"adding type {entryRaw.Key} to types to spawn");
+            }
+
+            foreach (var entry in TypesToSpawn)
+            {
+                SpawnCostBoosts[entry] += Options.EnemyEntries[entry].IndividualPersistentSpawnCostBoost.Value;
+                SpawnCostBoosts[entry] = Math.Clamp(SpawnCostBoosts[entry], 0, Options.EnemyEntries[entry].IndividualPersistentSpawnCostBoostMax.Value);
             }
 
             pointsFi.SetValue(endlessGrid, allPoints - (maxPoints - points));

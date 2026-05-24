@@ -113,7 +113,7 @@ namespace Nyxpiri.ULTRAKILL.CybergrindBosses
 
             _beenFilled = true;
 
-            EndlessGrid.Instance.GetComponent<ActivateNextWave>().deadEnemies += 1;
+            EndlessGrid.Instance.GetComponent<ActivateNextWave>().AddDeadEnemy();
 
             if (DeathcatcherEnemy != null)
             {

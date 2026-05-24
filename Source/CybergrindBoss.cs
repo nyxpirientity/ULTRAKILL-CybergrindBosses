@@ -108,7 +108,10 @@ namespace Nyxpiri.ULTRAKILL.CybergrindBosses
 
             if (minos != null)
             {
-                minos.blackHole = GameObject.Instantiate(minos.blackHole.gameObject, minos.blackHole.transform.parent);
+                var holeder = new GameObject();
+                holeder.transform.parent = transform;
+                holeder.SetActive(false);
+                minos.blackHole = GameObject.Instantiate(minos.blackHole.gameObject, holeder.transform);
                 var modifier = minos.blackHole.AddComponent<BlackholeModifier>();
                 modifier.RescaleOnStart = 0.4f;
                 modifier.Damage = 50;
@@ -118,7 +121,10 @@ namespace Nyxpiri.ULTRAKILL.CybergrindBosses
 
             if (prison != null && prison.blackHole != null)
             {
-                prison.blackHole = GameObject.Instantiate(prison.blackHole.gameObject, prison.blackHole.transform.parent);
+                var holeder = new GameObject();
+                holeder.transform.parent = transform;
+                holeder.SetActive(false);
+                prison.blackHole = GameObject.Instantiate(prison.blackHole.gameObject, holeder.transform);
                 var modifier = prison.blackHole.AddComponent<BlackholeModifier>();
                 modifier.RescaleOnStart = 1.0f;
                 modifier.Damage = 50;
@@ -130,6 +136,13 @@ namespace Nyxpiri.ULTRAKILL.CybergrindBosses
                 FieldAccess<Geryon, Transform> rotateAroundFA = new FieldAccess<Geryon, Transform>("rotateAround");
                 //rotateAroundFA.SetValue(gery, CyberArena.Instance.FloorCenter);
                 gery.gameObject.AddComponent<GeryonTweaks>();
+            }
+
+            var gce = GetComponentInChildren<GroundCheckEnemy>();
+
+            if (gce != null)
+            {
+                gce.cols.Clear();
             }
         }
 
@@ -203,7 +216,6 @@ namespace Nyxpiri.ULTRAKILL.CybergrindBosses
 
                 if (sisyprime != null)
                 {
-                    sisyprime.DisableGravity();
                     Enemy.Eid.SimpleDamage(10.0f);
                     var ouchieParticle = GameObject.Instantiate(deathParticle, transform.position, Quaternion.identity, EndlessGrid.Instance.transform);
                     ouchieParticle.SetActive(true);
@@ -211,7 +223,6 @@ namespace Nyxpiri.ULTRAKILL.CybergrindBosses
                 }
                 else if (minosP != null)
                 {
-                    minosP.DisableGravity();
                     Enemy.Eid.SimpleDamage(7.0f);
                     var ouchieParticle = GameObject.Instantiate(deathParticle, transform.position, Quaternion.identity, EndlessGrid.Instance.transform);
                     ouchieParticle.SetActive(true);
@@ -367,31 +378,46 @@ namespace Nyxpiri.ULTRAKILL.CybergrindBosses
 
                 if (gery != null)
                 {
-                    var goreZone = GoreZone.ResolveGoreZone(base.transform);
+                    BloodBomb(24, 34.0f);
+                }
 
-                    for (int i = 0; i < 24; i++)
-                    {
-                        var blood = BloodsplatterManager.Instance.GetGore(GoreType.Head, false, false, false, GetComponent<EnemyIdentifier>());
-                        if (!blood)
-                        {
-                            break;
-                        }
+                if (sisyprime != null)
+                {
+                    BloodBomb(6, 4.0f);
+                }
 
-                        blood.transform.position = transform.position + (UnityEngine.Random.insideUnitSphere * UnityEngine.Random.Range(0.0f, 34.0f));
-                        if (goreZone.goreZone != null)
-                        {
-                            blood.transform.SetParent(goreZone.goreZone, true);
-                        }
-
-                        blood.SetActive(value: true);
-                        if (blood.TryGetComponent<Bloodsplatter>(out var splatter))
-                        {
-                            splatter.GetReady();
-                        }
-                    }
+                if (minosP != null)
+                {
+                    BloodBomb(6, 4.0f);
                 }
 
                 Enemy.InstaDestroy();
+            }
+        }
+
+        private void BloodBomb(int iterations, float range)
+        {
+            var goreZone = GoreZone.ResolveGoreZone(base.transform);
+
+            for (int i = 0; i < iterations; i++)
+            {
+                var blood = BloodsplatterManager.Instance.GetGore(GoreType.Head, false, false, false, GetComponent<EnemyIdentifier>());
+                if (!blood)
+                {
+                    break;
+                }
+
+                blood.transform.position = transform.position + (UnityEngine.Random.insideUnitSphere * UnityEngine.Random.Range(0.0f, range));
+                if (goreZone.goreZone != null)
+                {
+                    blood.transform.SetParent(goreZone.goreZone, true);
+                }
+
+                blood.SetActive(value: true);
+                if (blood.TryGetComponent<Bloodsplatter>(out var splatter))
+                {
+                    splatter.GetReady();
+                }
             }
         }
 
@@ -609,13 +635,13 @@ namespace Nyxpiri.ULTRAKILL.CybergrindBosses
 
             if (minosP != null)
             {
-                waitingToDestroyTime = 0.5f;
+                waitingToDestroyTime = 0.8f;
                 waitingToDestroyTimestamp.UpdateToNow();
             }
 
             if (gery != null)
             {
-                waitingToDestroyTime = 0.5f;
+                waitingToDestroyTime = 0.8f;
                 waitingToDestroyTimestamp.UpdateToNow();
             }
         }

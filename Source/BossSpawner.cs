@@ -136,6 +136,10 @@ namespace Nyxpiri.ULTRAKILL.CybergrindBosses
                     case EnemyType.Geryon:
                         prefab = EnemyVariants.GeryonPrefab.gameObject;
                         break;
+                    case EnemyType.Mandalore:
+                        prefab = NyxLib.EnemyPrefabDatabase.GetPrefab(EnemyType.Mandalore);
+                        spawnPos = CyberArena.RandomTwoByTwo.GetValueOrDefault(Vector3.zero);
+                        break;
                     default:
                         break;
                 }
