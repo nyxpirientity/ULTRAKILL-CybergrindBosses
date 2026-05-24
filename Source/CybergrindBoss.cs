@@ -26,6 +26,16 @@ namespace Nyxpiri.ULTRAKILL.CybergrindBosses
             v2 = GetComponentInChildren<V2>();
             sm = GetComponent<SwordsMachine>();
 
+            Enemy = GetComponent<EnemyComponents>();
+
+            GameObject rootGo = Enemy.RootGameObject;
+
+            var colliders = rootGo.GetComponentsInChildren<Collider>();
+            foreach (var col in colliders)
+            {
+                col.gameObject.GetOrAddComponent<IgnoreDeathZones>();
+            }
+
             if (v2 != null && v2.secondEncounter)
             {
                 string name = "V2... 2!";
@@ -51,7 +61,6 @@ namespace Nyxpiri.ULTRAKILL.CybergrindBosses
                 return;
             }
 
-            Enemy = GetComponent<EnemyComponents>();
             Enemy.Eid.dontCountAsKills = true;
             Enemy.PreDeath += PreDeath;
             Enemy.PostDeath += PostDeath;
@@ -72,14 +81,20 @@ namespace Nyxpiri.ULTRAKILL.CybergrindBosses
             if (garbage != null)
             {
                 GabrielBaseBossVersionFA.SetValue(garbage, false);
+                GetComponent<GabrielVoice>().Invoke("Taunt", UnityEngine.Random.Range(0.1f, 0.5f));
             }
 
-            GameObject rootGo = Enemy.RootGameObject;
-
-            var colliders = Enemy.RootGameObject.GetComponentsInChildren<Collider>();
-            foreach (var col in colliders)
+            if (minosP != null)
             {
-                col.gameObject.GetOrAddComponent<IgnoreDeathZones>();
+                MonoSingleton<SubtitleController>.Instance.DisplaySubtitle("WEAK");
+                minosP.GetComponent<AudioSource>().clip = minosP.phaseChangeVoice;
+                minosP.GetComponent<AudioSource>().SetPitch(1f);
+                minosP.GetComponent<AudioSource>().Play(tracked: true);
+            }
+
+            if (sisyprime != null)
+            {
+                sisyprime.Taunt();
             }
 
             if (IsTundraAgony)
@@ -218,7 +233,7 @@ namespace Nyxpiri.ULTRAKILL.CybergrindBosses
 
             if (v2 != null)
             {
-                if (v2.transform.position.magnitude > 350.0f)
+                if (v2.transform.position.magnitude > 350.0f && !Enemy.Eid.Dead)
                 {
                     v2.GetComponent<EnemyIdentifier>().InstaKill();
                     StyleHUD.Instance.AddPoints(10, "STRANDED");

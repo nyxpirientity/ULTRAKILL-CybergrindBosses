@@ -7,6 +7,7 @@ namespace Nyxpiri.ULTRAKILL.CybergrindBosses
 {
     public class GrindTree : MonoBehaviour
     {
+        public static int NumActive { get; private set; } = 0;
         public BloodFiller Bf { get; private set; } = null;
         public EndlessGrid Eg { get; private set; } = null;
 
@@ -17,14 +18,34 @@ namespace Nyxpiri.ULTRAKILL.CybergrindBosses
         public EnemyComponents DeathcatcherEnemy { get; private set; } = null;
         public Deathcatcher Deathcatcher { get; private set; } = null;
 
-        public int NumEnemies => (Eg.enemyAmount - Anw.deadEnemies);
+        public int NumEnemiesBesidesTrees => ((Eg.enemyAmount - Anw.deadEnemies) - NumActive);
         public float TotalWaveHP = 0.0f;
+
+        RegistrationTracker activeRegTracker = null;
 
         protected void Awake()
         {
             Bf = GetComponent<BloodFiller>();
             Eg = EndlessGrid.Instance;
             Anw = Eg.GetComponent<ActivateNextWave>();
+
+            activeRegTracker = new RegistrationTracker(
+            registerAction: () =>
+            {
+                if (Bf.fullyFilled)
+                {
+                    return false;
+                }
+
+                NumActive += 1;
+                return true;
+            },
+            unregisterAction: () =>
+            {
+                NumActive -= 1;
+                return true;
+            }
+        );
         }
 
         protected void Start()
@@ -65,11 +86,13 @@ namespace Nyxpiri.ULTRAKILL.CybergrindBosses
 
         protected void OnEnable()
         {
+            activeRegTracker.Register();
             Cybergrind.PreCybergrindNextWave += OnNextWave;
         }
 
         protected void OnDisable()
         {
+            activeRegTracker.Unregister();
             Cybergrind.PreCybergrindNextWave -= OnNextWave;
         }
 
@@ -85,6 +108,8 @@ namespace Nyxpiri.ULTRAKILL.CybergrindBosses
             {
                 return;
             }
+
+            activeRegTracker.Unregister();
 
             _beenFilled = true;
 
@@ -162,7 +187,7 @@ namespace Nyxpiri.ULTRAKILL.CybergrindBosses
             Bf.fillSpeed = Mathf.Lerp(enemyCountBasedFillspeed, waveHpBasedFillspeed, Options.BloodTreeFillSpeedBlend.Value);
 
 
-            if (NumEnemies <= 3)
+            if (NumEnemiesBesidesTrees <= 3)
             {
                 if (SpawnFailsafeFilthTimestamp.TimeSince >= Mathf.Clamp(30.0f / ((float)StartTimestamp.TimeSince + 1.0f), 0.5f, 40.0f))
                 {

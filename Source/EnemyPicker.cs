@@ -35,6 +35,7 @@ namespace Nyxpiri.ULTRAKILL.CybergrindBosses
             int maxPoints = Mathf.FloorToInt(allPoints * Options.PointsRatioAllocatedToBosses.Value);
             int points = maxPoints;
             int spawnCostBonus = 0;
+            Dictionary<NyxLib.AEnemyType, int> individualSpawnCostBonuses = new Dictionary<NyxLib.AEnemyType, int>();
 
             Log.Debug($"deciding bosses to spawn with {points} points (allPoints = {allPoints})");
 
@@ -42,6 +43,8 @@ namespace Nyxpiri.ULTRAKILL.CybergrindBosses
             {
                 var entryRaw = Options.EnemyEntries.ElementAt(UnityEngine.Random.Range(0, Options.EnemyEntries.Count));
                 var entry = entryRaw.Value;
+
+                SpawnCostBoosts.TryAdd(entryRaw.Key, 0);
 
                 if (!entry.Enabled.Value)
                 {
@@ -60,12 +63,14 @@ namespace Nyxpiri.ULTRAKILL.CybergrindBosses
                     continue;
                 }
 
-                var baseSpawnCost = entry.SpawnCost.Value;
-                var spawnCost = baseSpawnCost + spawnCostBonus;
+                individualSpawnCostBonuses.TryAdd(entryRaw.Key, 0);
 
-                if (TypesToSpawn.Contains(entryRaw.Key))
+                var baseSpawnCost = entry.SpawnCost.Value;
+                var spawnCost = baseSpawnCost + spawnCostBonus + individualSpawnCostBonuses[entryRaw.Key] + SpawnCostBoosts[entryRaw.Key];
+                var boostPercentage = NyxMath.NormalizeToRange(SpawnCostBoosts[entryRaw.Key], 0, entryRaw.Value.IndividualPersistentSpawnCostBoostMax.Value);
+
+                if (UnityEngine.Random.Range(0.0f, 1.0f) >= boostPercentage)
                 {
-                    Log.Debug($"{entryRaw.Key} DENIED on the basis of already being intended to be spawned");
                     continue;
                 }
 
@@ -76,19 +81,22 @@ namespace Nyxpiri.ULTRAKILL.CybergrindBosses
                 }
 
                 SpawnCooldowns[entryRaw.Key] = entryRaw.Value.SpawnCooldown.Value;
+                SpawnCostBoosts[entryRaw.Key] += entryRaw.Value.IndividualPersistentSpawnCostBoost.Value;
+                SpawnCostBoosts[entryRaw.Key] = Math.Clamp(SpawnCostBoosts[entryRaw.Key], 0, entryRaw.Value.IndividualPersistentSpawnCostBoostMax.Value);
 
-                if (entryRaw.Key.VanillaEnumValue == EnemyType.FleshPanopticon || entryRaw.Key.VanillaEnumValue == EnemyType.FleshPrison || entryRaw.Key == EnemyVariants.BloodTree)
+                if (entryRaw.Key.VanillaEnumValue == EnemyType.FleshPanopticon || entryRaw.Key.VanillaEnumValue == EnemyType.FleshPrison)
                 {
-                    if (TypesToSpawn.Contains(EnemyTypeDB.Instance.GetVanillaType(EnemyType.FleshPanopticon)) || TypesToSpawn.Contains(EnemyTypeDB.Instance.GetVanillaType(EnemyType.FleshPrison)) || TypesToSpawn.Contains(EnemyVariants.BloodTree))
+                    if (TypesToSpawn.Contains(EnemyTypeDB.Instance.GetVanillaType(EnemyType.FleshPanopticon)) || TypesToSpawn.Contains(EnemyTypeDB.Instance.GetVanillaType(EnemyType.FleshPrison)))
                     {
                         continue;
                     }
                 }
 
                 spawnCostBonus += (int)(baseSpawnCost * entry.SpawnCostBonusScalar.Value);
-                points -= (int)(spawnCost * entry.SpawnCostSpentScalar.Value);
+                points -= (int)(baseSpawnCost * entry.SpawnCostSpentScalar.Value);
                 TypesToSpawn.Enqueue(entryRaw.Key);
                 EnemyAmountToAdd += 1;
+                individualSpawnCostBonuses[entryRaw.Key] += entry.IndividualCostIncreasePerSpawn.Value;
 
                 if (entryRaw.Key == EnemyVariants.TundraAgonyType)
                 {
@@ -117,5 +125,6 @@ namespace Nyxpiri.ULTRAKILL.CybergrindBosses
         public Queue<NyxLib.AEnemyType> TypesToSpawn { get; private set; } = new Queue<NyxLib.AEnemyType>();
         internal static int EnemyAmountToAdd { get; set; } = 0;
         private Dictionary<NyxLib.AEnemyType, int> SpawnCooldowns = new Dictionary<NyxLib.AEnemyType, int>();
+        private Dictionary<NyxLib.AEnemyType, int> SpawnCostBoosts = new Dictionary<NyxLib.AEnemyType, int>();
     }
 }

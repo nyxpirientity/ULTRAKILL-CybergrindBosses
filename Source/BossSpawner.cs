@@ -69,6 +69,8 @@ namespace Nyxpiri.ULTRAKILL.CybergrindBosses
 
             spawnTimer -= Time.fixedDeltaTime;
 
+            Vector3 spawnPos = Vector3.zero;
+
             if (spawnTimer <= 0.0f)
             {
                 spawnTimer = 0.25f;
@@ -85,15 +87,19 @@ namespace Nyxpiri.ULTRAKILL.CybergrindBosses
                 {
                     case EnemyType.Gabriel:
                         prefab = NyxLib.EnemyPrefabDatabase.GetPrefab(EnemyType.Gabriel);
+                        spawnPos = CyberArena.Instance.FloorCenter + (Vector3.up * 8.0f);
                         break;
                     case EnemyType.GabrielSecond:
                         prefab = NyxLib.EnemyPrefabDatabase.GetPrefab(EnemyType.GabrielSecond);
+                        spawnPos = CyberArena.Instance.FloorCenter + (Vector3.up * 16.0f);
                         break;
                     case EnemyType.V2:
                         prefab = NyxLib.EnemyPrefabDatabase.GetPrefab(EnemyType.V2);
+                        spawnPos = CyberArena.RandomOneByOne.GetValueOrDefault(Vector3.zero);
                         break;
                     case EnemyType.V2Second:
                         prefab = NyxLib.EnemyPrefabDatabase.GetPrefab(EnemyType.V2Second);
+                        spawnPos = CyberArena.RandomOneByOne.GetValueOrDefault(Vector3.zero);
                         break;
                     case EnemyType.FleshPrison:
                         prefab = NyxLib.EnemyPrefabDatabase.GetPrefab(EnemyType.FleshPrison);
@@ -103,6 +109,7 @@ namespace Nyxpiri.ULTRAKILL.CybergrindBosses
                         break;
                     case EnemyType.MinosPrime:
                         prefab = NyxLib.EnemyPrefabDatabase.GetPrefab(EnemyType.MinosPrime);
+                        spawnPos = CyberArena.RandomOneByOne.GetValueOrDefault(Vector3.zero);
                         break;
                     case EnemyType.Minos:
                         prefab = EnemyVariants.CorpseOfKingMinosPrefab;
@@ -112,15 +119,19 @@ namespace Nyxpiri.ULTRAKILL.CybergrindBosses
                         break;
                     case EnemyType.SisyphusPrime:
                         prefab = NyxLib.EnemyPrefabDatabase.GetPrefab(EnemyType.SisyphusPrime);
+                        spawnPos = CyberArena.RandomTwoByTwo.GetValueOrDefault(Vector3.zero);
                         break;
                     case EnemyType.CancerousRodent:
                         prefab = NyxLib.EnemyPrefabDatabase.GetPrefab(EnemyType.CancerousRodent);
+                        spawnPos = CyberArena.RandomOneByOne.GetValueOrDefault(Vector3.zero);
                         break;
                     case EnemyType.Minotaur:
                         prefab = NyxLib.EnemyPrefabDatabase.GetPrefab(EnemyType.Minotaur);
+                        spawnPos = CyberArena.RandomThreeByThree.GetValueOrDefault(Vector3.zero);
                         break;
                     case EnemyType.VeryCancerousRodent:
                         prefab = NyxLib.EnemyPrefabDatabase.GetPrefab(EnemyType.VeryCancerousRodent);
+                        spawnPos = CyberArena.RandomTwoByTwo.GetValueOrDefault(Vector3.zero);
                         break;
                     case EnemyType.Geryon:
                         prefab = EnemyVariants.GeryonPrefab.gameObject;
@@ -131,17 +142,17 @@ namespace Nyxpiri.ULTRAKILL.CybergrindBosses
 
                 GameObject enemyGo = null;
 
-                var spawnPos = CyberArena.Instance.FloorCenter + (Vector3.up * 10.0f) + (Vector3.forward * 10.0f);
+                spawnPos = spawnPos == Vector3.zero ? CyberArena.Instance.FloorCenter + (Vector3.up * 10.0f) + (Vector3.forward * 10.0f) : spawnPos;
                 var bossBar = Options.EnemyEntries[typeToSpawn].ShowBossBar.Value;
 
                 if (prefab != null)
                 {
                     enemyGo = GameObject.Instantiate(prefab, EndlessGrid.Instance.gameObject.transform);
-                    enemyGo.SetActive(true);
                     Log.Debug($"done spawning prefab for type {typeToSpawn}");
                     var enemy = enemyGo.GetComponentInChildren<EnemyComponents>();
+                    enemy.gameObject.AddComponent<GrindBoss>();
+                    enemyGo.SetActive(true);
                     var eid = enemy.Eid;
-                    eid.gameObject.AddComponent<GrindBoss>();
 
                     enemy.Health = enemy.Health * Options.EnemyEntries[typeToSpawn].HealthScalar.Value;
 
@@ -224,7 +235,7 @@ namespace Nyxpiri.ULTRAKILL.CybergrindBosses
                     }
                     else if (typeToSpawn == EnemyVariants.BloodTree)
                     {
-                        var bf = GameObject.Instantiate(EnemyVariants.BloodTreePrefab, CyberArena.Instance.FloorCenter, Quaternion.Euler(-90.0f, 0.0f, 0.0f), EndlessGrid.Instance.transform);
+                        var bf = GameObject.Instantiate(EnemyVariants.BloodTreePrefab, CyberArena.RandomOneByOne.GetValueOrDefault(CyberArena.Instance.FloorCenter), Quaternion.Euler(-90.0f, 0.0f, 0.0f), EndlessGrid.Instance.transform);
                         bf.gameObject.AddComponent<GrindTree>();
                         bf.gameObject.SetActive(true);
                     }
