@@ -483,27 +483,7 @@ namespace Nyxpiri.ULTRAKILL.CybergrindBosses
 
         private static void DestroyFloor()
         {
-            for (int i = 0; i < EndlessGrid.Instance.cubes.Length; i++)
-            {
-                EndlessCube[] cubeX = EndlessGrid.Instance.cubes[i];
-                foreach (var cube in cubeX)
-                {
-                    cube.transform.position += Vector3.down * 150.0f;
-                }
-            }
-
-            var combinedGridStaticObjectFA = new FieldAccess<EndlessGrid, GameObject>("combinedGridStaticObject");
-
-            combinedGridStaticObjectFA.GetValue(EndlessGrid.Instance).SetActive(false);
-
-            var jumpPadPoolFA = new FieldAccess<EndlessGrid, List<CyberPooledPrefab>>("jumpPadPool");
-
-            var jumpPadPool = jumpPadPoolFA.GetValue(EndlessGrid.Instance);
-
-            foreach (var jumpPad in jumpPadPool)
-            {
-                jumpPad.gameObject.SetActive(false);
-            }
+            CyberArena.Instance.DisableGeometry();
         }
 
         private static void LevSecondPhaseLaunchPlayerUp()
@@ -641,7 +621,7 @@ namespace Nyxpiri.ULTRAKILL.CybergrindBosses
 
             if (gery != null)
             {
-                waitingToDestroyTime = 0.8f;
+                waitingToDestroyTime = 0.6f;
                 waitingToDestroyTimestamp.UpdateToNow();
             }
         }

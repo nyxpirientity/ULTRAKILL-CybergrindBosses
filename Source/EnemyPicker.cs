@@ -42,6 +42,9 @@ namespace Nyxpiri.ULTRAKILL.CybergrindBosses
 
             HashSet<AEnemyType> deniedList = new HashSet<AEnemyType>();
 
+            bool isFakeFall = false;
+            bool canBeFakeFall = true;
+
             for (int i = 0; i < Options.BossSpawnIterations.Value && points > 0; i++)
             {
                 var entryRaw = Options.EnemyEntries.ElementAt(UnityEngine.Random.Range(0, Options.EnemyEntries.Count));
@@ -105,6 +108,25 @@ namespace Nyxpiri.ULTRAKILL.CybergrindBosses
                     }
                 }
 
+                var attributes = Options.EnemiesAttributes.GetValueOrDefault(entryRaw.Key, new Options.EnemyAttributes());
+
+                if (!attributes.CanSpawnInFakeFall.Value)
+                {
+                    if (!isFakeFall)
+                    {
+                        canBeFakeFall = false;
+                    }
+                    else
+                    {
+                        continue;
+                    }
+                }
+
+                if (entryRaw.Key == EnemyTypeDB.Instance.GetVanillaType(EnemyType.Geryon) && canBeFakeFall)
+                {
+                    isFakeFall = true;
+                }
+
                 SpawnedLastWave.Add(entryRaw.Key);
                 points -= spawnCostToSpend;
                 spawnCostBonus += (int)(baseSpawnCost * entry.SpawnCostBonusScalar.Value);
@@ -117,6 +139,8 @@ namespace Nyxpiri.ULTRAKILL.CybergrindBosses
                 {
                     EnemyAmountToAdd += 1;
                 }
+
+                ShouldFakeFall = isFakeFall;
 
                 Log.Debug($"adding type {entryRaw.Key} to types to spawn");
             }
@@ -157,6 +181,7 @@ namespace Nyxpiri.ULTRAKILL.CybergrindBosses
 
         public Queue<NyxLib.AEnemyType> TypesToSpawn { get; private set; } = new Queue<NyxLib.AEnemyType>();
         public HashSet<NyxLib.AEnemyType> SpawnedLastWave { get; private set; } = new HashSet<NyxLib.AEnemyType>();
+        public bool ShouldFakeFall = false;
         internal static int EnemyAmountToAdd { get; set; } = 0;
         private Dictionary<NyxLib.AEnemyType, int> SpawnCooldowns = new Dictionary<NyxLib.AEnemyType, int>();
         private Dictionary<NyxLib.AEnemyType, int> SpawnCostBoosts = new Dictionary<NyxLib.AEnemyType, int>();

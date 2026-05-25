@@ -20,7 +20,11 @@ namespace Nyxpiri.ULTRAKILL.CybergrindBosses
         public delegate void GenerationFinishedEventHandler(CyberArena arena);
         public event GenerationFinishedEventHandler OnGenerationFinished;
 
+        public delegate void EnemySpawningFinishedEventHandler(CyberArena arena);
+        public event EnemySpawningFinishedEventHandler OnEnemySpawningFinished;
+
         public EndlessGrid Grid { get; private set; } = null;
+        public GameObject FakeFallGo { get; private set; }
 
         public static FieldAccess<EndlessGrid, int> incompletePrefabsFA = new FieldAccess<EndlessGrid, int>("incompletePrefabs");
         public static FieldAccess<EndlessGrid, int> incompleteBlocksFA = new FieldAccess<EndlessGrid, int>("incompleteBlocks");
@@ -34,6 +38,9 @@ namespace Nyxpiri.ULTRAKILL.CybergrindBosses
         private List<Vector3> _oneByOnes = new List<Vector3>();
 
         private bool _initialSpawn;
+        private bool _enemySpawningFinished;
+        private float _enableZapperTimer;
+        private bool _geometryDisabled = false;
 
         public static Vector3? RandomOneByOne
         {
@@ -59,25 +66,163 @@ namespace Nyxpiri.ULTRAKILL.CybergrindBosses
             }
         }
 
+        public DeathZone ZapperDeathZone { get; private set; } = null;
+        public bool ZapperDisabled { get; private set; } = false;
+        public bool FakeFallActive { get; private set; }
+
+        public void DisableGeometry()
+        {
+            Assert.IsTrue(Cheats.Enabled);
+
+            _geometryDisabled = true;
+
+            for (int i = 0; i < Grid.cubes.Length; i++)
+            {
+                EndlessCube[] cubeX = Grid.cubes[i];
+                foreach (var cube in cubeX)
+                {
+                    cube.transform.position += Vector3.down * 250.0f;
+                }
+            }
+
+            var combinedGridStaticObjectFA = new FieldAccess<EndlessGrid, GameObject>("combinedGridStaticObject");
+
+            combinedGridStaticObjectFA.GetValue(Grid).SetActive(false);
+
+            var jumpPadPoolFA = new FieldAccess<EndlessGrid, List<CyberPooledPrefab>>("jumpPadPool");
+
+            var jumpPadPool = jumpPadPoolFA.GetValue(Grid);
+
+            DisableZapper();
+
+            foreach (var jumpPad in jumpPadPool)
+            {
+                jumpPad.gameObject.SetActive(false);
+            }
+        }
+
+        private void EnableZapperIn(float seconds)
+        {
+            _enableZapperTimer = seconds;
+        }
+
+        private void EnableZapper()
+        {
+            ZapperDisabled = false;
+            ZapperDeathZone.enabled = true;
+            ZapperDeathZone.gameObject.GetComponent<MeshRenderer>().enabled = true;
+        }
+
+        private void DisableZapper()
+        {
+            ZapperDisabled = true;
+            EnforceZapperDisable();
+        }
+
+        private void EnforceZapperDisable()
+        {
+            if (ZapperDisabled)
+            {
+                ZapperDeathZone.enabled = false;
+                ZapperDeathZone.gameObject.GetComponent<MeshRenderer>().enabled = false;
+            }
+        }
+
         protected void Awake()
         {
             Grid = GetComponent<EndlessGrid>();
+            FakeFallGo = GameObject.Instantiate(EnemyVariants.FakeFallZone.gameObject, HorizontalCenter, Quaternion.identity, transform);
+            FakeFallGo.SetActive(false);
+            var ffCollider = FakeFallGo.GetComponent<BoxCollider>();
+            Vector3 size = ffCollider.size;
+            size.Scale(new Vector3(100.0f, 1.0f, 100.0f));
+            ffCollider.size = size;
+        }
+
+        protected void Start()
+        {
+            EnemyEvents.PreDeath += (EnemyComponents enemy, bool instakill) =>
+            {
+                //StackDebug.PrintStack();
+            };
+
+            var deathZones = FindObjectsOfType<DeathZone>();
+
+            foreach (var dz in deathZones)
+            {
+                if (dz.gameObject.name == "Cube")
+                {
+                    ZapperDeathZone = dz;
+                }
+            }
         }
 
         protected void OnEnable()
         {
+            Cybergrind.PreCybergrindNextWave += PreNextWave;
             Cybergrind.PostCybergrindNextWave += NextWave;
+        }
+
+        private void PreNextWave(EventMethodCanceler canceler, EndlessGrid endlessGrid)
+        {
+            if (_geometryDisabled)
+            {
+                _geometryDisabled = false;
+            }
         }
 
         protected void OnDisable()
         {
+            Cybergrind.PreCybergrindNextWave -= PreNextWave;
             Cybergrind.PostCybergrindNextWave -= NextWave;
+        }
+
+        public void EnableFakeFall()
+        {
+            if (FakeFallActive)
+            {
+                return;
+            }
+
+            FakeFallActive = true;
+            FakeFallGo.SetActive(true);
+        }
+
+        public void DisableFakeFall()
+        {
+            if (!FakeFallActive)
+            {
+                return;
+            }
+
+            FakeFallActive = false;
+            FakeFallGo.SetActive(false);
+            EnableZapperIn(seconds: 1.25f);
+            var offset = CyberArena.HorizontalCenter - NewMovement.Instance.transform.position;
+            NewMovement.Instance.transform.position += offset;
+
+            foreach (var enemy in EnemyTracker.Instance.enemies)
+            {
+                if (enemy == null)
+                {
+                    continue;
+                }
+
+                var rootGo = enemy.GetComponent<EnemyComponents>().RootGameObject;
+
+                rootGo.transform.position += offset;
+            }
         }
 
         private void NextWave(EventMethodCancelInfo cancelInfo, EndlessGrid endlessGrid)
         {
             _initialSpawn = true;
             GenerationFinished = false;
+            _enemySpawningFinished = false;
+            if (ZapperDisabled)
+            {
+                EnableZapperIn(0.5f);
+            }
         }
 
         protected void FixedUpdate()
@@ -91,6 +236,17 @@ namespace Nyxpiri.ULTRAKILL.CybergrindBosses
             {
                 return;
             }
+
+            if (ZapperDisabled && _enableZapperTimer > 0.0f)
+            {
+                _enableZapperTimer -= Time.fixedDeltaTime;
+                if (_enableZapperTimer <= 0.0f)
+                {
+                    EnableZapper();
+                }
+            }
+
+            EnforceZapperDisable();
 
             var incompletePrefabs = incompletePrefabsFA.GetValue(EndlessGrid.Instance);
             var incompleteBlocks = incompleteBlocksFA.GetValue(EndlessGrid.Instance);
@@ -111,6 +267,12 @@ namespace Nyxpiri.ULTRAKILL.CybergrindBosses
 
                 GenerationFinished = true;
                 OnGenerationFinished?.Invoke(this);
+            }
+
+            if (!_enemySpawningFinished && Grid.enemyAmount != 999)
+            {
+                _enemySpawningFinished = true;
+                OnEnemySpawningFinished?.Invoke(this);
             }
         }
 

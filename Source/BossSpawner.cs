@@ -17,15 +17,34 @@ namespace Nyxpiri.ULTRAKILL.CybergrindBosses
         private int _bossWaveCooldown = 0;
         BossPicker _bossPicker = new BossPicker();
         float spawnTimer = 0.0f;
+        RegistrationTracker FakeFallRegistrator;
+
+        protected void Start()
+        {
+            FakeFallRegistrator = new RegistrationTracker(
+                registerAction: () =>
+                {
+                    CyberArena.Instance.EnableFakeFall();
+                    return true;
+                },
+                unregisterAction: () =>
+                {
+                    CyberArena.Instance.DisableFakeFall();
+                    return true;
+                }
+            );
+        }
 
         protected void OnEnable()
         {
             Cybergrind.PostCybergrindNextWave += NextWave;
+            CyberArena.Instance.OnEnemySpawningFinished += OnEnemySpawningFinished;
         }
 
         protected void OnDisable()
         {
             Cybergrind.PostCybergrindNextWave -= NextWave;
+            CyberArena.Instance.OnEnemySpawningFinished -= OnEnemySpawningFinished;
         }
 
         private void NextWave(EventMethodCancelInfo cancelInfo, EndlessGrid endlessGrid)
@@ -35,7 +54,7 @@ namespace Nyxpiri.ULTRAKILL.CybergrindBosses
                 return;
             }
 
-            spawnTimer = 0.3f;
+            FakeFallRegistrator.Unregister();
 
             if (IsBossWave)
             {
@@ -47,12 +66,132 @@ namespace Nyxpiri.ULTRAKILL.CybergrindBosses
                 _bossPicker.TypesToSpawn.Clear();
             }
 
+            if (_bossPicker.ShouldFakeFall)
+            {
+                spawnTimer = 100.0f;
+            }
+            else
+            {
+                spawnTimer = 0.3f;
+            }
+
             if (IsBossWave || !Options.OnlyCountBossWavesTowardsBossCooldowns.Value)
             {
                 _bossPicker.UpdateBossCooldowns();
             }
 
             _bossWaveCooldown -= 1;
+        }
+
+        private void OnEnemySpawningFinished(CyberArena arena)
+        {
+            if (Cheats.IsCheatDisabled(CybergrindBosses.CheatID))
+            {
+                return;
+            }
+
+            if (_bossPicker.ShouldFakeFall)
+            {
+                SetupFakeFall(arena);
+            }
+        }
+
+        private void BigHarmlessExplosionAt(Vector3 position)
+        {
+            var explosion = GameObject.Instantiate(NyxLib.Assets.ExplosionPrefab, position, Quaternion.identity);
+            var eadd = explosion.GetComponent<ExplosionAdditions>();
+            eadd.Harmless = true;
+            eadd.ExplosionScale = 20.0f;
+            eadd.ExplosionSpeedScale = 20.0f;
+            eadd.ExplosionPushScale = 0.0f;
+            explosion.SetActive(true);
+            foreach (var audio in eadd.Audios)
+            {
+                audio.maxDistance *= 100.0f;
+                audio.volume *= 1.2f;
+            }
+        }
+
+        private void SetupFakeFall(CyberArena arena)
+        {
+            var enemies = arena.Grid.GetComponentsInChildren<EnemyComponents>();
+            int points = 0;
+
+            Dictionary<AEnemyType, int> spawnCostIncreases = new Dictionary<AEnemyType, int>();
+            FakeFallRegistrator.Register();
+            BigHarmlessExplosionAt(CyberArena.HorizontalCenter);
+            BigHarmlessExplosionAt(CyberArena.HorizontalCenter);
+            CyberArena.Instance.DisableGeometry();
+
+            List<(AEnemyType, Options.EnemyAttributes)> fakeFallSpawnables = new List<(AEnemyType, Options.EnemyAttributes)>();
+
+            foreach (var entry in Options.EnemiesAttributes)
+            {
+                // TODO: exclude bosses
+                if (entry.Value.CanSpawnInFakeFall.Value && entry.Value.FakeFallSpawnCost.Value > 0 && EnemyPrefabDatabase.GetPrefab(entry.Key) != null)
+                {
+                    fakeFallSpawnables.Add((entry.Key, entry.Value));
+                }
+            }
+
+            foreach (var enemy in enemies)
+            {
+                var attributes = Options.EnemiesAttributes[EnemyTypeDB.Instance.GetVanillaType(enemy.Eid.enemyType)];
+
+                if (attributes.CanSpawnInFakeFall.Value)
+                {
+                    continue;
+                }
+
+                points += attributes.FakeFallDespawnValue.Value;
+
+                SpawnFakeFallEnemy(fakeFallSpawnables, ref points, spawnCostIncreases);
+
+                enemy.Eid.InstaKill();
+                enemy.InstaDestroy();
+            }
+
+            spawnTimer = 0.3f;
+        }
+
+        private void SpawnFakeFallEnemy(List<(AEnemyType, Options.EnemyAttributes)> spawnables, ref int points, Dictionary<AEnemyType, int> spawnCostIncreases)
+        {
+            (AEnemyType, Options.EnemyAttributes)? mostExpensive = null;
+            int mostExpensiveCost = 0;
+
+            foreach (var spawnable in spawnables)
+            {
+                spawnCostIncreases.TryAdd(spawnable.Item1, 0);
+                var attribs = spawnable.Item2;
+                var type = spawnable.Item1;
+                var cost = attribs.FakeFallSpawnCost.Value + spawnCostIncreases[spawnable.Item1];
+
+                if (cost > mostExpensiveCost && points >= cost)
+                {
+                    mostExpensive = spawnable;
+                    mostExpensiveCost = cost;
+                }
+            }
+
+            if (!mostExpensive.HasValue)
+            {
+                return;
+            }
+
+            var newEnemyGo = EnemyPrefabDatabase.TrySpawnAt(mostExpensive.Value.Item1, UnityEngine.Random.insideUnitSphere * 30.0f + CyberArena.HorizontalCenter, Quaternion.identity, EndlessGrid.Instance.transform, true);
+            var enemy = newEnemyGo.GetComponentInChildren<EnemyComponents>();
+            enemy.Eid.dontCountAsKills = false;
+            var collider = enemy.GetComponentsInChildren<Collider>();
+            foreach (var col in collider)
+            {
+                col.gameObject.AddComponent<IgnoreDeathZones>();
+            }
+
+            points -= mostExpensiveCost;
+            spawnCostIncreases[mostExpensive.Value.Item1] += mostExpensive.Value.Item2.FakeFallSpawnCostIncreasePerSpawn.Value;
+
+            EndlessGrid.Instance.enemyAmount += 1;
+            EndlessGrid.Instance.tempEnemyAmount += 1;
         }
 
         protected void FixedUpdate()

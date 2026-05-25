@@ -30,7 +30,16 @@ namespace Nyxpiri.ULTRAKILL.CybergrindBosses
             public ConfigEntry<bool> ShowBossBar { get; internal set; }
         }
 
+        public class EnemyAttributes
+        {
+            public ConfigEntry<bool> CanSpawnInFakeFall = null;
+            public ConfigEntry<int> FakeFallSpawnCost = null;
+            public ConfigEntry<int> FakeFallSpawnCostIncreasePerSpawn = null;
+            public ConfigEntry<int> FakeFallDespawnValue = null;
+        }
+
         public static Dictionary<NyxLib.AEnemyType, EnemyEntry> EnemyEntries = new Dictionary<NyxLib.AEnemyType, EnemyEntry>();
+        public static Dictionary<NyxLib.AEnemyType, EnemyAttributes> EnemiesAttributes = new Dictionary<NyxLib.AEnemyType, EnemyAttributes>();
         public static bool EnemyEntriesInitialized = false;
 
         public static ConfigEntry<float> PointsRatioAllocatedToBosses { get; private set; } = null;
@@ -361,6 +370,64 @@ namespace Nyxpiri.ULTRAKILL.CybergrindBosses
             BloodTreeCatcherHeight = _config.Bind("BloodTree", "BloodCatcherHeight", 46.0f);
 
             FleshPrisonInsigniaSizeScalar = _config.Bind("FleshPrisons", "InsigniaSizeScalar", 0.5f);
+
+            AddEnemyAttribs(EnemyType.BigJohnator, canSpawnInFakeFall: false, fakeFallSpawnCost: 0, fakeFallSpawnCostIncreasePerSpawn: 0, fakeFallDespawnValue: 0);
+            AddEnemyAttribs(EnemyType.Centaur, canSpawnInFakeFall: false, fakeFallSpawnCost: 0, fakeFallSpawnCostIncreasePerSpawn: 0, fakeFallDespawnValue: 0);
+            AddEnemyAttribs(EnemyType.CancerousRodent, canSpawnInFakeFall: true, fakeFallSpawnCost: 0, fakeFallSpawnCostIncreasePerSpawn: 0, fakeFallDespawnValue: 0);
+            AddEnemyAttribs(EnemyType.Cerberus, canSpawnInFakeFall: false, fakeFallSpawnCost: 0, fakeFallSpawnCostIncreasePerSpawn: 0, fakeFallDespawnValue: 50);
+            AddEnemyAttribs(EnemyType.Deathcatcher, canSpawnInFakeFall: false, fakeFallSpawnCost: 0, fakeFallSpawnCostIncreasePerSpawn: 0, fakeFallDespawnValue: 50);
+            AddEnemyAttribs(EnemyType.Drone, canSpawnInFakeFall: true, fakeFallSpawnCost: 10, fakeFallSpawnCostIncreasePerSpawn: 5, fakeFallDespawnValue: 0);
+            AddEnemyAttribs(EnemyType.Ferryman, canSpawnInFakeFall: false, fakeFallSpawnCost: 0, fakeFallSpawnCostIncreasePerSpawn: 0, fakeFallDespawnValue: 100);
+            AddEnemyAttribs(EnemyType.Filth, canSpawnInFakeFall: false, fakeFallSpawnCost: 0, fakeFallSpawnCostIncreasePerSpawn: 0, fakeFallDespawnValue: 2);
+            AddEnemyAttribs(EnemyType.FleshPanopticon, canSpawnInFakeFall: false, fakeFallSpawnCost: 0, fakeFallSpawnCostIncreasePerSpawn: 0, fakeFallDespawnValue: 0);
+            AddEnemyAttribs(EnemyType.FleshPrison, canSpawnInFakeFall: false, fakeFallSpawnCost: 0, fakeFallSpawnCostIncreasePerSpawn: 0, fakeFallDespawnValue: 0);
+            AddEnemyAttribs(EnemyType.Gabriel, canSpawnInFakeFall: true, fakeFallSpawnCost: 0, fakeFallSpawnCostIncreasePerSpawn: 0, fakeFallDespawnValue: 0);
+            AddEnemyAttribs(EnemyType.GabrielSecond, canSpawnInFakeFall: true, fakeFallSpawnCost: 0, fakeFallSpawnCostIncreasePerSpawn: 0, fakeFallDespawnValue: 0);
+            AddEnemyAttribs(EnemyType.Geryon, canSpawnInFakeFall: true, fakeFallSpawnCost: 0, fakeFallSpawnCostIncreasePerSpawn: 0, fakeFallDespawnValue: 0);
+            AddEnemyAttribs(EnemyType.Gutterman, canSpawnInFakeFall: false, fakeFallSpawnCost: 0, fakeFallSpawnCostIncreasePerSpawn: 0, fakeFallDespawnValue: 60);
+            AddEnemyAttribs(EnemyType.Guttertank, canSpawnInFakeFall: false, fakeFallSpawnCost: 0, fakeFallSpawnCostIncreasePerSpawn: 0, fakeFallDespawnValue: 50);
+            AddEnemyAttribs(EnemyType.HideousMass, canSpawnInFakeFall: false, fakeFallSpawnCost: 0, fakeFallSpawnCostIncreasePerSpawn: 0, fakeFallDespawnValue: 80);
+            AddEnemyAttribs(EnemyType.Idol, canSpawnInFakeFall: false, fakeFallSpawnCost: 0, fakeFallSpawnCostIncreasePerSpawn: 0, fakeFallDespawnValue: 50);
+            AddEnemyAttribs(EnemyType.Leviathan, canSpawnInFakeFall: false, fakeFallSpawnCost: 0, fakeFallSpawnCostIncreasePerSpawn: 0, fakeFallDespawnValue: 0);
+            AddEnemyAttribs(EnemyType.MaliciousFace, canSpawnInFakeFall: false, fakeFallSpawnCost: 0, fakeFallSpawnCostIncreasePerSpawn: 0, fakeFallDespawnValue: 25);
+            AddEnemyAttribs(EnemyType.Mandalore, canSpawnInFakeFall: true, fakeFallSpawnCost: 0, fakeFallSpawnCostIncreasePerSpawn: 0, fakeFallDespawnValue: 0);
+            AddEnemyAttribs(EnemyType.Mannequin, canSpawnInFakeFall: false, fakeFallSpawnCost: 0, fakeFallSpawnCostIncreasePerSpawn: 0, fakeFallDespawnValue: 20);
+            AddEnemyAttribs(EnemyType.Mindflayer, canSpawnInFakeFall: true, fakeFallSpawnCost: 170, fakeFallSpawnCostIncreasePerSpawn: 50, fakeFallDespawnValue: 0);
+            AddEnemyAttribs(EnemyType.Minos, canSpawnInFakeFall: false, fakeFallSpawnCost: 0, fakeFallSpawnCostIncreasePerSpawn: 0, fakeFallDespawnValue: 0);
+            AddEnemyAttribs(EnemyType.MinosPrime, canSpawnInFakeFall: false, fakeFallSpawnCost: 0, fakeFallSpawnCostIncreasePerSpawn: 0, fakeFallDespawnValue: 0);
+            AddEnemyAttribs(EnemyType.Minotaur, canSpawnInFakeFall: false, fakeFallSpawnCost: 0, fakeFallSpawnCostIncreasePerSpawn: 0, fakeFallDespawnValue: 0);
+            AddEnemyAttribs(EnemyType.MirrorReaper, canSpawnInFakeFall: false, fakeFallSpawnCost: 0, fakeFallSpawnCostIncreasePerSpawn: 0, fakeFallDespawnValue: 0);
+            AddEnemyAttribs(EnemyType.Power, canSpawnInFakeFall: true, fakeFallSpawnCost: 250, fakeFallSpawnCostIncreasePerSpawn: 35, fakeFallDespawnValue: 0);
+            AddEnemyAttribs(EnemyType.Providence, canSpawnInFakeFall: true, fakeFallSpawnCost: 200, fakeFallSpawnCostIncreasePerSpawn: 100, fakeFallDespawnValue: 0);
+            AddEnemyAttribs(EnemyType.Puppet, canSpawnInFakeFall: false, fakeFallSpawnCost: 0, fakeFallSpawnCostIncreasePerSpawn: 0, fakeFallDespawnValue: 0);
+            AddEnemyAttribs(EnemyType.Schism, canSpawnInFakeFall: false, fakeFallSpawnCost: 0, fakeFallSpawnCostIncreasePerSpawn: 0, fakeFallDespawnValue: 20);
+            AddEnemyAttribs(EnemyType.Sisyphus, canSpawnInFakeFall: false, fakeFallSpawnCost: 0, fakeFallSpawnCostIncreasePerSpawn: 0, fakeFallDespawnValue: 0);
+            AddEnemyAttribs(EnemyType.SisyphusPrime, canSpawnInFakeFall: false, fakeFallSpawnCost: 0, fakeFallSpawnCostIncreasePerSpawn: 0, fakeFallDespawnValue: 0);
+            AddEnemyAttribs(EnemyType.Soldier, canSpawnInFakeFall: false, fakeFallSpawnCost: 0, fakeFallSpawnCostIncreasePerSpawn: 0, fakeFallDespawnValue: 30);
+            AddEnemyAttribs(EnemyType.Stalker, canSpawnInFakeFall: false, fakeFallSpawnCost: 0, fakeFallSpawnCostIncreasePerSpawn: 0, fakeFallDespawnValue: 50);
+            AddEnemyAttribs(EnemyType.Stray, canSpawnInFakeFall: false, fakeFallSpawnCost: 0, fakeFallSpawnCostIncreasePerSpawn: 0, fakeFallDespawnValue: 3);
+            AddEnemyAttribs(EnemyType.Streetcleaner, canSpawnInFakeFall: false, fakeFallSpawnCost: 0, fakeFallSpawnCostIncreasePerSpawn: 0, fakeFallDespawnValue: 5);
+            AddEnemyAttribs(EnemyType.Swordsmachine, canSpawnInFakeFall: false, fakeFallSpawnCost: 0, fakeFallSpawnCostIncreasePerSpawn: 0, fakeFallDespawnValue: 15);
+            AddEnemyAttribs(EnemyType.Turret, canSpawnInFakeFall: false, fakeFallSpawnCost: 0, fakeFallSpawnCostIncreasePerSpawn: 0, fakeFallDespawnValue: 50);
+            AddEnemyAttribs(EnemyType.V2, canSpawnInFakeFall: false, fakeFallSpawnCost: 0, fakeFallSpawnCostIncreasePerSpawn: 0, fakeFallDespawnValue: 0);
+            AddEnemyAttribs(EnemyType.VeryCancerousRodent, canSpawnInFakeFall: true, fakeFallSpawnCost: 0, fakeFallSpawnCostIncreasePerSpawn: 0, fakeFallDespawnValue: 0);
+            AddEnemyAttribs(EnemyType.Virtue, canSpawnInFakeFall: true, fakeFallSpawnCost: 105, fakeFallSpawnCostIncreasePerSpawn: 25, fakeFallDespawnValue: 0);
+            AddEnemyAttribs(EnemyType.Wicked, canSpawnInFakeFall: false, fakeFallSpawnCost: 0, fakeFallSpawnCostIncreasePerSpawn: 0, fakeFallDespawnValue: 0);
+        }
+
+        private static void AddEnemyAttribs(EnemyType enemyType, bool canSpawnInFakeFall, int fakeFallSpawnCost, int fakeFallSpawnCostIncreasePerSpawn, int fakeFallDespawnValue)
+        {
+            AddEnemyAttribs(EnemyTypeDB.Instance.GetVanillaType(enemyType), canSpawnInFakeFall, fakeFallSpawnCost, fakeFallSpawnCostIncreasePerSpawn, fakeFallDespawnValue);
+        }
+
+        private static void AddEnemyAttribs(AEnemyType enemyType, bool canSpawnInFakeFall, int fakeFallSpawnCost, int fakeFallSpawnCostIncreasePerSpawn, int fakeFallDespawnValue)
+        {
+            var attribs = new EnemyAttributes();
+            attribs.CanSpawnInFakeFall = _config.Bind($"{enemyType.Name}", "CanSpawnInFakeFall", canSpawnInFakeFall);
+            attribs.FakeFallSpawnCost = _config.Bind($"{enemyType.Name}", "FakeFallSpawnCost", fakeFallSpawnCost);
+            attribs.FakeFallDespawnValue = _config.Bind($"{enemyType.Name}", "FakeFallDespawnValue", fakeFallDespawnValue);
+            attribs.FakeFallSpawnCostIncreasePerSpawn = _config.Bind($"{enemyType.Name}", "FakeFallSpawnCostIncreasePerSpawn", fakeFallSpawnCostIncreasePerSpawn);
+            EnemiesAttributes.TryAdd(enemyType, attribs);
         }
 
         private static void AddEnemyType(EnemyType enemyType, bool enabled, int spawnCost, int spawnWave, bool showBossBar, float healthScalar, int spawnCooldown, float spawnCostBonusScalar, float spawnCostBonusSpentScalar, float spawnCostRequirementScalar, float spawnCostSpentScalar, int individualCostIncreasePerSpawn, int individualPersistentSpawnCostBoost, int individualPersistentSpawnCostBoostMax, int individualPersistentSpawnCostBoostDecay)

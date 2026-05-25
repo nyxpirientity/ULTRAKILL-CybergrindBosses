@@ -13,6 +13,7 @@ namespace Nyxpiri.ULTRAKILL.CybergrindBosses
     public class GeryonTweaks : MonoBehaviour
     {
         private Geryon _gery = null;
+        private GameObject rotateAroundGo = null;
         private EnemyIdentifier eid = null;
 
         protected void Awake()
@@ -27,6 +28,9 @@ namespace Nyxpiri.ULTRAKILL.CybergrindBosses
 
             minimumAroundDistanceFA.SetValue(_gery, 82.0f);
             maximumAroundDistanceFA.SetValue(_gery, 92.0f);
+            rotateAroundGo = new GameObject();
+            rotateAroundGo.transform.parent = transform;
+            rotateAroundFA.SetValue(_gery, rotateAroundGo.transform);
         }
 
         FieldAccess<Geryon, bool> inActionFA = new FieldAccess<Geryon, bool>("inAction");
@@ -35,6 +39,7 @@ namespace Nyxpiri.ULTRAKILL.CybergrindBosses
         FieldAccess<Geryon, float> minimumAroundDistanceFA = new FieldAccess<Geryon, float>("minimumAroundDistance");
         FieldAccess<Geryon, float> maximumAroundDistanceFA = new FieldAccess<Geryon, float>("maximumAroundDistance");
         FieldAccess<Geryon, GameObject> playerBlockerShieldFA = new FieldAccess<Geryon, GameObject>("playerBlockerShield");
+        FieldAccess<Geryon, Transform> rotateAroundFA = new FieldAccess<Geryon, Transform>("rotateAround");
 
         MethodInfo WaveClap = typeof(Geryon).GetMethod("WaveClap", BindingFlags.Instance | BindingFlags.NonPublic);
         MethodInfo BowForward = typeof(Geryon).GetMethod("BowForward", BindingFlags.Instance | BindingFlags.NonPublic);
@@ -43,6 +48,7 @@ namespace Nyxpiri.ULTRAKILL.CybergrindBosses
         protected void FixedUpdate()
         {
             playerPushBackerCooldownFA.SetValue(_gery, 99f);
+            rotateAroundGo.transform.position = CyberArena.HorizontalCenter;
         }
 
         private bool PrePickAttack()

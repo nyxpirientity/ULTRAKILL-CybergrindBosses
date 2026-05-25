@@ -16,6 +16,7 @@ namespace Nyxpiri.ULTRAKILL.CybergrindBosses
         public static BloodFiller BloodTreePrefab = null;
         private static GameObject prefabHolder = null;
         public static Geryon GeryonPrefab = null;
+        public static FakeFallZone FakeFallZone = null;
 
         public static GameObject SpawnAgonyAndTundra(Vector3 position, Quaternion rotation, Transform parent)
         {
@@ -52,6 +53,17 @@ namespace Nyxpiri.ULTRAKILL.CybergrindBosses
                 prefabHolder.SetActive(false);
 
                 GeryonPrefab = GameObject.Instantiate(geryon, prefabHolder.transform);
+
+                return true;
+            });
+
+            NyxLib.Assets.AddAssetPicker<FakeFallZone>((ffz) =>
+            {
+                prefabHolder ??= new GameObject();
+                GameObject.DontDestroyOnLoad(prefabHolder);
+                prefabHolder.SetActive(false);
+
+                FakeFallZone = GameObject.Instantiate(ffz, prefabHolder.transform);
 
                 return true;
             });
