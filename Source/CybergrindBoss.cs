@@ -214,28 +214,28 @@ namespace Nyxpiri.ULTRAKILL.CybergrindBosses
                 FieldAccess<Idol, GameObject> deathParticleFA = new FieldAccess<Idol, GameObject>("deathParticle");
                 var deathParticle = deathParticleFA.GetValue(idol);
 
-                if (sisyprime != null)
+                if (sisyprime != null && lastBoostHelperTimestamp.TimeSince > 0.45 && !Enemy.Eid.dead)
                 {
                     Enemy.Eid.SimpleDamage(10.0f);
                     var ouchieParticle = GameObject.Instantiate(deathParticle, transform.position, Quaternion.identity, EndlessGrid.Instance.transform);
                     ouchieParticle.SetActive(true);
                     sisyprime.transform.position = CyberArena.HorizontalCenter + Vector3.up * 100.0f;
+                    lastBoostHelperTimestamp.UpdateToNow();
                 }
-                else if (minosP != null)
+                else if (minosP != null && lastBoostHelperTimestamp.TimeSince > 0.45 && !Enemy.Eid.dead)
                 {
                     Enemy.Eid.SimpleDamage(7.0f);
                     var ouchieParticle = GameObject.Instantiate(deathParticle, transform.position, Quaternion.identity, EndlessGrid.Instance.transform);
                     ouchieParticle.SetActive(true);
                     minosP.transform.position = CyberArena.HorizontalCenter + Vector3.up * 100.0f;
+                    lastBoostHelperTimestamp.UpdateToNow();
                 }
             }
 
-            if (minos)
-
-                if (Enemy.transform.position.y < -5.0f && IsTundraAgony)
-                {
-                    Enemy.Eid.InstaKill();
-                }
+            if (Enemy.transform.position.y < -5.0f && IsTundraAgony)
+            {
+                Enemy.Eid.InstaKill();
+            }
 
             if (v2 != null && v2.isEnraged)
             {
