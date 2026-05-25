@@ -180,7 +180,7 @@ namespace Nyxpiri.ULTRAKILL.CybergrindBosses
                          spawnCostBonusScalar: 0.25f,
                          spawnCostBonusSpentScalar: 1.0f,
                          spawnCostRequirementScalar: 1.0f,
-                         spawnCostSpentScalar: 0.1f,
+                         spawnCostSpentScalar: 1.0f,
                          individualCostIncreasePerSpawn: 25,
                          individualPersistentSpawnCostBoost: 90,
                          individualPersistentSpawnCostBoostMax: 300,
@@ -342,7 +342,7 @@ namespace Nyxpiri.ULTRAKILL.CybergrindBosses
 
             AddEnemyType(enemyType: EnemyType.MinosPrime,
                          enabled: true,
-                         spawnCost: 425,
+                         spawnCost: 340,
                          spawnWave: 40,
                          showBossBar: true,
                          healthScalar: 1.0f,
@@ -359,7 +359,7 @@ namespace Nyxpiri.ULTRAKILL.CybergrindBosses
 
             AddEnemyType(enemyType: EnemyType.SisyphusPrime,
                          enabled: true,
-                         spawnCost: 380,
+                         spawnCost: 310,
                          spawnWave: 50,
                          showBossBar: true,
                          healthScalar: 1.0f,
