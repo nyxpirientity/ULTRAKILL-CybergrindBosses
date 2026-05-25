@@ -55,6 +55,12 @@ namespace Nyxpiri.ULTRAKILL.CybergrindBosses
         public static ConfigEntry<float> BloodTreeCatcherRadius = null;
         public static ConfigEntry<float> BloodTreeCatcherHeight = null;
 
+        public static ConfigEntry<bool> UseForcedFakeFall = null;
+        public static ConfigEntry<int> ForcedFakeFallMinWave = null;
+        public static ConfigEntry<int> ForcedFakeFallDelayMinWaves = null;
+        public static ConfigEntry<int> ForcedFakeFallDelayMaxWaves = null;
+
+
         public static ConfigEntry<float> FleshPrisonInsigniaSizeScalar { get; private set; }
 
         internal static void Initialize(BaseUnityPlugin plugin)
@@ -67,6 +73,11 @@ namespace Nyxpiri.ULTRAKILL.CybergrindBosses
             _configFileManager.Initialize(_config);
             _configFileManager.OnReload += Reload;
 
+            UseForcedFakeFall = _config.Bind("FakeFall", "UseForcedFakeFall", true);
+            ForcedFakeFallMinWave = _config.Bind("FakeFall", "ForcedFakeFallMinWave", 30);
+            ForcedFakeFallDelayMinWaves = _config.Bind("FakeFall", "ForcedFakeFallDelayMinWaves", 9);
+            ForcedFakeFallDelayMaxWaves = _config.Bind("FakeFall", "ForcedFakeFallDelayMaxWaves", 12);
+
             PointsRatioAllocatedToBosses = _config.Bind("General", "PointsRatioAllocatedToBosses", 0.5f);
             BossSpawnIterations = _config.Bind("General", "BossSpawnIterations", 75);
             BossWaveCooldownMin = _config.Bind("General", "GlobalBossWaveCooldownMin", 2);
@@ -76,19 +87,19 @@ namespace Nyxpiri.ULTRAKILL.CybergrindBosses
 
             AddEnemyType(enemyType: EnemyType.Geryon,
                          enabled: false,
-                         spawnCost: 1000,
-                         spawnWave: 1,
+                         spawnCost: 300,
+                         spawnWave: 30,
                          showBossBar: true,
                          healthScalar: 0.5f,
-                         spawnCooldown: 70,
-                         spawnCostBonusScalar: 5.0f,
-                         spawnCostBonusSpentScalar: 0.5f,
-                         spawnCostRequirementScalar: 2.0f,
+                         spawnCooldown: 5,
+                         spawnCostBonusScalar: 0.5f,
+                         spawnCostBonusSpentScalar: 0.25f,
+                         spawnCostRequirementScalar: 1.0f,
                          spawnCostSpentScalar: 1.0f,
                          individualCostIncreasePerSpawn: 10000,
-                         individualPersistentSpawnCostBoost: 0,
-                         individualPersistentSpawnCostBoostMax: 0,
-                         individualPersistentSpawnCostBoostDecay: 0
+                         individualPersistentSpawnCostBoost: 350,
+                         individualPersistentSpawnCostBoostMax: 350,
+                         individualPersistentSpawnCostBoostDecay: 40
                          );
 
             AddEnemyType(enemyType: EnemyType.CancerousRodent,
@@ -166,7 +177,7 @@ namespace Nyxpiri.ULTRAKILL.CybergrindBosses
                          showBossBar: true,
                          healthScalar: 1.0f,
                          spawnCooldown: 0,
-                         spawnCostBonusScalar: 0.5f,
+                         spawnCostBonusScalar: 0.25f,
                          spawnCostBonusSpentScalar: 0.5f,
                          spawnCostRequirementScalar: 1.0f,
                          spawnCostSpentScalar: 0.1f,
@@ -183,7 +194,7 @@ namespace Nyxpiri.ULTRAKILL.CybergrindBosses
                          showBossBar: true,
                          healthScalar: 1.0f,
                          spawnCooldown: 0,
-                         spawnCostBonusScalar: 0.5f,
+                         spawnCostBonusScalar: 0.25f,
                          spawnCostBonusSpentScalar: 0.5f,
                          spawnCostRequirementScalar: 1.0f,
                          spawnCostSpentScalar: 1.0f,
@@ -200,7 +211,7 @@ namespace Nyxpiri.ULTRAKILL.CybergrindBosses
                          showBossBar: true,
                          healthScalar: 1.0f,
                          spawnCooldown: 0,
-                         spawnCostBonusScalar: 0.5f,
+                         spawnCostBonusScalar: 0.25f,
                          spawnCostBonusSpentScalar: 0.5f,
                          spawnCostRequirementScalar: 1.0f,
                          spawnCostSpentScalar: 1.0f,
@@ -217,7 +228,7 @@ namespace Nyxpiri.ULTRAKILL.CybergrindBosses
                          showBossBar: true,
                          healthScalar: 1.0f,
                          spawnCooldown: 0,
-                         spawnCostBonusScalar: 0.5f,
+                         spawnCostBonusScalar: 0.3f,
                          spawnCostBonusSpentScalar: 0.5f,
                          spawnCostRequirementScalar: 1.0f,
                          spawnCostSpentScalar: 1.0f,
@@ -234,7 +245,7 @@ namespace Nyxpiri.ULTRAKILL.CybergrindBosses
                          showBossBar: true,
                          healthScalar: 1.0f,
                          spawnCooldown: 0,
-                         spawnCostBonusScalar: 0.5f,
+                         spawnCostBonusScalar: 0.35f,
                          spawnCostBonusSpentScalar: 0.5f,
                          spawnCostRequirementScalar: 1.0f,
                          spawnCostSpentScalar: 1.0f,
@@ -251,7 +262,7 @@ namespace Nyxpiri.ULTRAKILL.CybergrindBosses
                          showBossBar: true,
                          healthScalar: 1.0f,
                          spawnCooldown: 0,
-                         spawnCostBonusScalar: 0.75f,
+                         spawnCostBonusScalar: 0.4f,
                          spawnCostBonusSpentScalar: 0.5f,
                          spawnCostRequirementScalar: 1.0f,
                          spawnCostSpentScalar: 1.0f,
@@ -302,7 +313,7 @@ namespace Nyxpiri.ULTRAKILL.CybergrindBosses
                          showBossBar: true,
                          healthScalar: 0.6f,
                          spawnCooldown: 0,
-                         spawnCostBonusScalar: 0.5f,
+                         spawnCostBonusScalar: 0.4f,
                          spawnCostBonusSpentScalar: 0.5f,
                          spawnCostRequirementScalar: 1.0f,
                          spawnCostSpentScalar: 1.0f,
@@ -319,7 +330,7 @@ namespace Nyxpiri.ULTRAKILL.CybergrindBosses
                          showBossBar: true,
                          healthScalar: 0.6f,
                          spawnCooldown: 0,
-                         spawnCostBonusScalar: 0.5f,
+                         spawnCostBonusScalar: 0.55f,
                          spawnCostBonusSpentScalar: 0.5f,
                          spawnCostRequirementScalar: 1.0f,
                          spawnCostSpentScalar: 1.0f,
@@ -336,7 +347,7 @@ namespace Nyxpiri.ULTRAKILL.CybergrindBosses
                          showBossBar: true,
                          healthScalar: 1.0f,
                          spawnCooldown: 0,
-                         spawnCostBonusScalar: 0.5f,
+                         spawnCostBonusScalar: 0.65f,
                          spawnCostBonusSpentScalar: 0.5f,
                          spawnCostRequirementScalar: 1.0f,
                          spawnCostSpentScalar: 1.0f,
@@ -353,7 +364,7 @@ namespace Nyxpiri.ULTRAKILL.CybergrindBosses
                          showBossBar: true,
                          healthScalar: 1.0f,
                          spawnCooldown: 0,
-                         spawnCostBonusSpentScalar: 0.5f,
+                         spawnCostBonusSpentScalar: 0.6f,
                          spawnCostBonusScalar: 0.5f,
                          spawnCostRequirementScalar: 1.0f,
                          spawnCostSpentScalar: 1.0f,
@@ -370,6 +381,9 @@ namespace Nyxpiri.ULTRAKILL.CybergrindBosses
             BloodTreeCatcherHeight = _config.Bind("BloodTree", "BloodCatcherHeight", 46.0f);
 
             FleshPrisonInsigniaSizeScalar = _config.Bind("FleshPrisons", "InsigniaSizeScalar", 0.5f);
+
+            AddEnemyAttribs(EnemyVariants.TundraAgonyType, canSpawnInFakeFall: false, fakeFallSpawnCost: 0, fakeFallSpawnCostIncreasePerSpawn: 0, fakeFallDespawnValue: 0);
+            AddEnemyAttribs(EnemyVariants.BloodTree, canSpawnInFakeFall: false, fakeFallSpawnCost: 0, fakeFallSpawnCostIncreasePerSpawn: 0, fakeFallDespawnValue: 0);
 
             AddEnemyAttribs(EnemyType.BigJohnator, canSpawnInFakeFall: false, fakeFallSpawnCost: 0, fakeFallSpawnCostIncreasePerSpawn: 0, fakeFallDespawnValue: 0);
             AddEnemyAttribs(EnemyType.Centaur, canSpawnInFakeFall: false, fakeFallSpawnCost: 0, fakeFallSpawnCostIncreasePerSpawn: 0, fakeFallDespawnValue: 0);
@@ -392,13 +406,13 @@ namespace Nyxpiri.ULTRAKILL.CybergrindBosses
             AddEnemyAttribs(EnemyType.MaliciousFace, canSpawnInFakeFall: false, fakeFallSpawnCost: 0, fakeFallSpawnCostIncreasePerSpawn: 0, fakeFallDespawnValue: 25);
             AddEnemyAttribs(EnemyType.Mandalore, canSpawnInFakeFall: true, fakeFallSpawnCost: 0, fakeFallSpawnCostIncreasePerSpawn: 0, fakeFallDespawnValue: 0);
             AddEnemyAttribs(EnemyType.Mannequin, canSpawnInFakeFall: false, fakeFallSpawnCost: 0, fakeFallSpawnCostIncreasePerSpawn: 0, fakeFallDespawnValue: 20);
-            AddEnemyAttribs(EnemyType.Mindflayer, canSpawnInFakeFall: true, fakeFallSpawnCost: 170, fakeFallSpawnCostIncreasePerSpawn: 50, fakeFallDespawnValue: 0);
+            AddEnemyAttribs(EnemyType.Mindflayer, canSpawnInFakeFall: true, fakeFallSpawnCost: 65, fakeFallSpawnCostIncreasePerSpawn: 35, fakeFallDespawnValue: 0);
             AddEnemyAttribs(EnemyType.Minos, canSpawnInFakeFall: false, fakeFallSpawnCost: 0, fakeFallSpawnCostIncreasePerSpawn: 0, fakeFallDespawnValue: 0);
             AddEnemyAttribs(EnemyType.MinosPrime, canSpawnInFakeFall: false, fakeFallSpawnCost: 0, fakeFallSpawnCostIncreasePerSpawn: 0, fakeFallDespawnValue: 0);
             AddEnemyAttribs(EnemyType.Minotaur, canSpawnInFakeFall: false, fakeFallSpawnCost: 0, fakeFallSpawnCostIncreasePerSpawn: 0, fakeFallDespawnValue: 0);
             AddEnemyAttribs(EnemyType.MirrorReaper, canSpawnInFakeFall: false, fakeFallSpawnCost: 0, fakeFallSpawnCostIncreasePerSpawn: 0, fakeFallDespawnValue: 0);
-            AddEnemyAttribs(EnemyType.Power, canSpawnInFakeFall: true, fakeFallSpawnCost: 250, fakeFallSpawnCostIncreasePerSpawn: 35, fakeFallDespawnValue: 0);
-            AddEnemyAttribs(EnemyType.Providence, canSpawnInFakeFall: true, fakeFallSpawnCost: 200, fakeFallSpawnCostIncreasePerSpawn: 100, fakeFallDespawnValue: 0);
+            AddEnemyAttribs(EnemyType.Power, canSpawnInFakeFall: true, fakeFallSpawnCost: 80, fakeFallSpawnCostIncreasePerSpawn: 35, fakeFallDespawnValue: 0);
+            AddEnemyAttribs(EnemyType.Providence, canSpawnInFakeFall: true, fakeFallSpawnCost: 70, fakeFallSpawnCostIncreasePerSpawn: 40, fakeFallDespawnValue: 0);
             AddEnemyAttribs(EnemyType.Puppet, canSpawnInFakeFall: false, fakeFallSpawnCost: 0, fakeFallSpawnCostIncreasePerSpawn: 0, fakeFallDespawnValue: 0);
             AddEnemyAttribs(EnemyType.Schism, canSpawnInFakeFall: false, fakeFallSpawnCost: 0, fakeFallSpawnCostIncreasePerSpawn: 0, fakeFallDespawnValue: 20);
             AddEnemyAttribs(EnemyType.Sisyphus, canSpawnInFakeFall: false, fakeFallSpawnCost: 0, fakeFallSpawnCostIncreasePerSpawn: 0, fakeFallDespawnValue: 0);
@@ -411,7 +425,7 @@ namespace Nyxpiri.ULTRAKILL.CybergrindBosses
             AddEnemyAttribs(EnemyType.Turret, canSpawnInFakeFall: false, fakeFallSpawnCost: 0, fakeFallSpawnCostIncreasePerSpawn: 0, fakeFallDespawnValue: 50);
             AddEnemyAttribs(EnemyType.V2, canSpawnInFakeFall: false, fakeFallSpawnCost: 0, fakeFallSpawnCostIncreasePerSpawn: 0, fakeFallDespawnValue: 0);
             AddEnemyAttribs(EnemyType.VeryCancerousRodent, canSpawnInFakeFall: true, fakeFallSpawnCost: 0, fakeFallSpawnCostIncreasePerSpawn: 0, fakeFallDespawnValue: 0);
-            AddEnemyAttribs(EnemyType.Virtue, canSpawnInFakeFall: true, fakeFallSpawnCost: 105, fakeFallSpawnCostIncreasePerSpawn: 25, fakeFallDespawnValue: 0);
+            AddEnemyAttribs(EnemyType.Virtue, canSpawnInFakeFall: true, fakeFallSpawnCost: 50, fakeFallSpawnCostIncreasePerSpawn: 25, fakeFallDespawnValue: 0);
             AddEnemyAttribs(EnemyType.Wicked, canSpawnInFakeFall: false, fakeFallSpawnCost: 0, fakeFallSpawnCostIncreasePerSpawn: 0, fakeFallDespawnValue: 0);
         }
 

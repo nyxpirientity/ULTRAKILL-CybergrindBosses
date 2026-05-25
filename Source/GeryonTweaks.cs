@@ -28,12 +28,19 @@ namespace Nyxpiri.ULTRAKILL.CybergrindBosses
 
             minimumAroundDistanceFA.SetValue(_gery, 82.0f);
             maximumAroundDistanceFA.SetValue(_gery, 92.0f);
+            originalHealthFA.SetValue(_gery, eid.health);
             rotateAroundGo = new GameObject();
             rotateAroundGo.transform.parent = transform;
             rotateAroundFA.SetValue(_gery, rotateAroundGo.transform);
         }
 
+        protected void Start()
+        {
+            originalHealthFA.SetValue(_gery, eid.health);
+        }
+
         FieldAccess<Geryon, bool> inActionFA = new FieldAccess<Geryon, bool>("inAction");
+        FieldAccess<Geryon, float> originalHealthFA = new FieldAccess<Geryon, float>("originalHealth");
         FieldAccess<Geryon, float> playerPushBackerCooldownFA = new FieldAccess<Geryon, float>("playerPushBackerCooldown");
         FieldAccess<Geryon, float> cooldownFA = new FieldAccess<Geryon, float>("cooldown");
         FieldAccess<Geryon, float> minimumAroundDistanceFA = new FieldAccess<Geryon, float>("minimumAroundDistance");
@@ -48,7 +55,10 @@ namespace Nyxpiri.ULTRAKILL.CybergrindBosses
         protected void FixedUpdate()
         {
             playerPushBackerCooldownFA.SetValue(_gery, 99f);
-            rotateAroundGo.transform.position = CyberArena.HorizontalCenter;
+
+            var rotateAroundTarget = NewMovement.Instance.transform.position;
+            rotateAroundTarget.Scale(new Vector3(1.0f, 0.0f, 1.0f));
+            rotateAroundGo.transform.position = NyxMath.EaseInterpTo(rotateAroundGo.transform.position, rotateAroundTarget, 2.0f, Time.fixedDeltaTime);
         }
 
         private bool PrePickAttack()

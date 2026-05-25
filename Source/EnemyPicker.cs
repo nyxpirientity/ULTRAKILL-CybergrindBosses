@@ -45,6 +45,14 @@ namespace Nyxpiri.ULTRAKILL.CybergrindBosses
             bool isFakeFall = false;
             bool canBeFakeFall = true;
 
+            if (Options.UseForcedFakeFall.Value && wave >= Options.ForcedFakeFallMinWave.Value)
+            {
+                if (_wavesSinceFakeFall >= _currentFakeFallDelay)
+                {
+                    isFakeFall = true;
+                }
+            }
+
             for (int i = 0; i < Options.BossSpawnIterations.Value && points > 0; i++)
             {
                 var entryRaw = Options.EnemyEntries.ElementAt(UnityEngine.Random.Range(0, Options.EnemyEntries.Count));
@@ -108,7 +116,7 @@ namespace Nyxpiri.ULTRAKILL.CybergrindBosses
                     }
                 }
 
-                var attributes = Options.EnemiesAttributes.GetValueOrDefault(entryRaw.Key, new Options.EnemyAttributes());
+                var attributes = Options.EnemiesAttributes.GetValueOrDefault(entryRaw.Key, Options.EnemiesAttributes[EnemyTypeDB.Instance.GetVanillaType(EnemyType.Filth)]);
 
                 if (!attributes.CanSpawnInFakeFall.Value)
                 {
@@ -141,6 +149,12 @@ namespace Nyxpiri.ULTRAKILL.CybergrindBosses
                 }
 
                 ShouldFakeFall = isFakeFall;
+
+                if (ShouldFakeFall)
+                {
+                    _currentFakeFallDelay = UnityEngine.Random.Range(Options.ForcedFakeFallDelayMinWaves.Value, Options.ForcedFakeFallDelayMaxWaves.Value);
+                    _wavesSinceFakeFall = 0;
+                }
 
                 Log.Debug($"adding type {entryRaw.Key} to types to spawn");
             }
@@ -177,12 +191,16 @@ namespace Nyxpiri.ULTRAKILL.CybergrindBosses
 
             SpawnCooldowns = newSpawnCooldowns;
             SpawnCostBoosts = newSpawnCostBoosts;
+
+            _wavesSinceFakeFall += 1;
         }
 
         public Queue<NyxLib.AEnemyType> TypesToSpawn { get; private set; } = new Queue<NyxLib.AEnemyType>();
         public HashSet<NyxLib.AEnemyType> SpawnedLastWave { get; private set; } = new HashSet<NyxLib.AEnemyType>();
         public bool ShouldFakeFall = false;
         internal static int EnemyAmountToAdd { get; set; } = 0;
+        int _wavesSinceFakeFall = 0;
+        int _currentFakeFallDelay = 1000;
         private Dictionary<NyxLib.AEnemyType, int> SpawnCooldowns = new Dictionary<NyxLib.AEnemyType, int>();
         private Dictionary<NyxLib.AEnemyType, int> SpawnCostBoosts = new Dictionary<NyxLib.AEnemyType, int>();
     }

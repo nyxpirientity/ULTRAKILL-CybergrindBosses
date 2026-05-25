@@ -10,7 +10,7 @@ using Nyxpiri.ULTRAKILL.NyxLib.EnemyTypes;
 
 namespace Nyxpiri.ULTRAKILL.CybergrindBosses
 {
-    [ConfigureSingleton(SingletonFlags.NoAutoInstance)]
+    [ConfigureSingleton(SingletonFlags.NoAutoInstance), DefaultExecutionOrder(-10000)]
     public class CyberArena : MonoSingleton<CyberArena>
     {
         public static Vector3 HorizontalCenter => new Vector3(0.0f, 0.0f, 62.5f);
@@ -68,7 +68,8 @@ namespace Nyxpiri.ULTRAKILL.CybergrindBosses
 
         public DeathZone ZapperDeathZone { get; private set; } = null;
         public bool ZapperDisabled { get; private set; } = false;
-        public bool FakeFallActive { get; private set; }
+        public bool FakeFallActive { get; private set; } = false;
+        public List<GameObject> FakeFallHookPoints { get; private set; } = new List<GameObject>();
 
         public void DisableGeometry()
         {
@@ -131,21 +132,11 @@ namespace Nyxpiri.ULTRAKILL.CybergrindBosses
         protected void Awake()
         {
             Grid = GetComponent<EndlessGrid>();
-            FakeFallGo = GameObject.Instantiate(EnemyVariants.FakeFallZone.gameObject, HorizontalCenter, Quaternion.identity, transform);
-            FakeFallGo.SetActive(false);
-            var ffCollider = FakeFallGo.GetComponent<BoxCollider>();
-            Vector3 size = ffCollider.size;
-            size.Scale(new Vector3(100.0f, 1.0f, 100.0f));
-            ffCollider.size = size;
+            EnsureFakeFallZoneExists();
         }
 
         protected void Start()
         {
-            EnemyEvents.PreDeath += (EnemyComponents enemy, bool instakill) =>
-            {
-                //StackDebug.PrintStack();
-            };
-
             var deathZones = FindObjectsOfType<DeathZone>();
 
             foreach (var dz in deathZones)
@@ -154,6 +145,69 @@ namespace Nyxpiri.ULTRAKILL.CybergrindBosses
                 {
                     ZapperDeathZone = dz;
                 }
+            }
+
+            if (NyxLib.Cheats.IsCheatDisabled(CybergrindBosses.CheatID))
+            {
+                return;
+            }
+
+            EnsureFakeFallHookPointsExist();
+        }
+
+        private void EnsureFakeFallZoneExists()
+        {
+            if (NyxLib.Cheats.IsCheatDisabled(CybergrindBosses.CheatID))
+            {
+                return;
+            }
+
+            if (FakeFallGo == null)
+            {
+                FakeFallGo = GameObject.Instantiate(EnemyVariants.FakeFallZone.gameObject, HorizontalCenter, Quaternion.identity, transform);
+                FakeFallGo.SetActive(false);
+                var ffCollider = FakeFallGo.GetComponent<BoxCollider>();
+                Vector3 size = ffCollider.size;
+                size.Scale(new Vector3(100.0f, 1.0f, 100.0f));
+                ffCollider.size = size;
+            }
+        }
+
+        private void EnsureFakeFallHookPointsExist()
+        {
+            if (NyxLib.Cheats.IsCheatDisabled(CybergrindBosses.CheatID))
+            {
+                return;
+            }
+
+            if (FakeFallHookPoints.Count != 0)
+            {
+                return;
+            }
+
+            Vector3 offset = Vector3.forward * 65.0f;
+            int numHookPoints = 5;
+            for (int i = 0; i < numHookPoints; i++)
+            {
+                offset.y = 20.0f;
+
+                Vector3 currentOffset = (Quaternion.Euler(new Vector3(0.0f, Mathf.Lerp(0.0f, 360.0f, ((float)(i)) / numHookPoints), 0.0f)) * (offset));
+
+                var hookPointGo = GameObject.Instantiate(NyxLib.Assets.HookPoints.SlingshotHookPoint, HorizontalCenter + currentOffset, Quaternion.identity, EndlessGrid.Instance.transform);
+
+                FakeFallHookPoints.Add(hookPointGo);
+            }
+
+            numHookPoints = 3;
+            for (int i = 0; i < numHookPoints; i++)
+            {
+                offset.y = 0.0f;
+
+                Vector3 currentOffset = (Quaternion.Euler(new Vector3(0.0f, Mathf.Lerp(0.0f, 360.0f, ((float)(i)) / numHookPoints), 0.0f)) * (offset));
+
+                var hookPointGo = GameObject.Instantiate(NyxLib.Assets.HookPoints.SlingshotHookPoint, HorizontalCenter + currentOffset, Quaternion.identity, EndlessGrid.Instance.transform);
+
+                FakeFallHookPoints.Add(hookPointGo);
             }
         }
 
@@ -165,6 +219,11 @@ namespace Nyxpiri.ULTRAKILL.CybergrindBosses
 
         private void PreNextWave(EventMethodCanceler canceler, EndlessGrid endlessGrid)
         {
+            if (NyxLib.Cheats.IsCheatDisabled(CybergrindBosses.CheatID))
+            {
+                return;
+            }
+
             if (_geometryDisabled)
             {
                 _geometryDisabled = false;
@@ -179,17 +238,35 @@ namespace Nyxpiri.ULTRAKILL.CybergrindBosses
 
         public void EnableFakeFall()
         {
+            if (NyxLib.Cheats.IsCheatDisabled(CybergrindBosses.CheatID))
+            {
+                return;
+            }
+
             if (FakeFallActive)
             {
                 return;
             }
 
+            EnsureFakeFallZoneExists();
+            EnsureFakeFallHookPointsExist();
+
             FakeFallActive = true;
             FakeFallGo.SetActive(true);
+
+            foreach (var hp in FakeFallHookPoints)
+            {
+                hp.SetActive(true);
+            }
         }
 
         public void DisableFakeFall()
         {
+            if (NyxLib.Cheats.IsCheatDisabled(CybergrindBosses.CheatID))
+            {
+                return;
+            }
+
             if (!FakeFallActive)
             {
                 return;
@@ -197,7 +274,7 @@ namespace Nyxpiri.ULTRAKILL.CybergrindBosses
 
             FakeFallActive = false;
             FakeFallGo.SetActive(false);
-            EnableZapperIn(seconds: 1.25f);
+            EnableZapperIn(seconds: 2.0f);
             var offset = CyberArena.HorizontalCenter - NewMovement.Instance.transform.position;
             NewMovement.Instance.transform.position += offset;
 
@@ -212,16 +289,54 @@ namespace Nyxpiri.ULTRAKILL.CybergrindBosses
 
                 rootGo.transform.position += offset;
             }
+
+            foreach (var hp in FakeFallHookPoints)
+            {
+                hp.SetActive(false);
+            }
         }
 
         private void NextWave(EventMethodCancelInfo cancelInfo, EndlessGrid endlessGrid)
         {
+            if (NyxLib.Cheats.IsCheatDisabled(CybergrindBosses.CheatID))
+            {
+                return;
+            }
+
             _initialSpawn = true;
             GenerationFinished = false;
             _enemySpawningFinished = false;
             if (ZapperDisabled)
             {
                 EnableZapperIn(0.5f);
+            }
+        }
+
+        protected void Update()
+        {
+            if (NyxLib.Cheats.IsCheatDisabled(CybergrindBosses.CheatID))
+            {
+                return;
+            }
+
+            var anw = Grid.GetComponent<ActivateNextWave>();
+            if (anw.deadEnemies >= Grid.enemyAmount)
+            {
+                var enemies = EnemyTracker.Instance.GetCurrentEnemies();
+                int numAlive = 0;
+
+                foreach (var enemy in enemies)
+                {
+                    if (!enemy.dead && !(enemy.dontCountAsKills || enemy.GetComponent<GrindBoss>() != null || enemy.GetComponent<GrindTree>() != null))
+                    {
+                        numAlive += 1;
+                    }
+                }
+
+                if (numAlive != 0)
+                {
+                    Grid.enemyAmount += numAlive;
+                }
             }
         }
 

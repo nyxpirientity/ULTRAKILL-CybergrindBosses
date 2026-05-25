@@ -145,16 +145,22 @@ namespace Nyxpiri.ULTRAKILL.CybergrindBosses
 
                 points += attributes.FakeFallDespawnValue.Value;
 
-                SpawnFakeFallEnemy(fakeFallSpawnables, ref points, spawnCostIncreases);
-
                 enemy.Eid.InstaKill();
                 enemy.InstaDestroy();
+            }
+
+            for (int i = 0; i < 100; i++)
+            {
+                if (!SpawnFakeFallEnemy(fakeFallSpawnables, ref points, spawnCostIncreases))
+                {
+                    break;
+                }
             }
 
             spawnTimer = 0.3f;
         }
 
-        private void SpawnFakeFallEnemy(List<(AEnemyType, Options.EnemyAttributes)> spawnables, ref int points, Dictionary<AEnemyType, int> spawnCostIncreases)
+        private bool SpawnFakeFallEnemy(List<(AEnemyType, Options.EnemyAttributes)> spawnables, ref int points, Dictionary<AEnemyType, int> spawnCostIncreases)
         {
             (AEnemyType, Options.EnemyAttributes)? mostExpensive = null;
             int mostExpensiveCost = 0;
@@ -175,7 +181,7 @@ namespace Nyxpiri.ULTRAKILL.CybergrindBosses
 
             if (!mostExpensive.HasValue)
             {
-                return;
+                return false;
             }
 
             var newEnemyGo = EnemyPrefabDatabase.TrySpawnAt(mostExpensive.Value.Item1, UnityEngine.Random.insideUnitSphere * 30.0f + CyberArena.HorizontalCenter, Quaternion.identity, EndlessGrid.Instance.transform, true);
@@ -192,6 +198,8 @@ namespace Nyxpiri.ULTRAKILL.CybergrindBosses
 
             EndlessGrid.Instance.enemyAmount += 1;
             EndlessGrid.Instance.tempEnemyAmount += 1;
+
+            return true;
         }
 
         protected void FixedUpdate()
@@ -209,6 +217,11 @@ namespace Nyxpiri.ULTRAKILL.CybergrindBosses
             spawnTimer -= Time.fixedDeltaTime;
 
             Vector3 spawnPos = Vector3.zero;
+
+            if (_bossPicker.ShouldFakeFall && !CyberArena.Instance.FakeFallActive)
+            {
+                return;
+            }
 
             if (spawnTimer <= 0.0f)
             {
