@@ -171,6 +171,7 @@ namespace Nyxpiri.ULTRAKILL.CybergrindBosses
 
             if (ShouldFakeFall)
             {
+                Log.Debug($"ShouldFakeFall will == true, _wavesSinceFakeFall: {_wavesSinceFakeFall}, _currentFakeFallDelay: {_currentFakeFallDelay}");
                 _currentFakeFallDelay = UnityEngine.Random.Range(Options.ForcedFakeFallDelayMinWaves.Value, Options.ForcedFakeFallDelayMaxWaves.Value);
                 _wavesSinceFakeFall = 0;
                 Log.Debug($"ShouldFakeFall == true, _wavesSinceFakeFall: {_wavesSinceFakeFall}, _currentFakeFallDelay: {_currentFakeFallDelay}");

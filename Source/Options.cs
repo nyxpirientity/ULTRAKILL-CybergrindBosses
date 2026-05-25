@@ -72,7 +72,7 @@ namespace Nyxpiri.ULTRAKILL.CybergrindBosses
             _configFileManager.Initialize(_config);
             _configFileManager.OnReload += Reload;
 
-            UseForcedFakeFall = _config.Bind("FakeFall", "UseForcedFakeFall", true);
+            UseForcedFakeFall = _config.Bind("FakeFall", "UseForcedFakeFall", false);
             ForcedFakeFallMinWave = _config.Bind("FakeFall", "ForcedFakeFallMinWave", 30);
             ForcedFakeFallDelayMinWaves = _config.Bind("FakeFall", "ForcedFakeFallDelayMinWaves", 9);
             ForcedFakeFallDelayMaxWaves = _config.Bind("FakeFall", "ForcedFakeFallDelayMaxWaves", 12);
@@ -238,7 +238,7 @@ namespace Nyxpiri.ULTRAKILL.CybergrindBosses
 
             AddEnemyType(enemyType: EnemyType.GabrielSecond,
                          enabled: true,
-                         spawnCost: 145,
+                         spawnCost: 90,
                          spawnWave: 20,
                          showBossBar: true,
                          healthScalar: 1.0f,
@@ -255,7 +255,7 @@ namespace Nyxpiri.ULTRAKILL.CybergrindBosses
 
             AddEnemyType(enemyType: EnemyType.Leviathan,
                          enabled: true,
-                         spawnCost: 130,
+                         spawnCost: 70,
                          spawnWave: 18,
                          showBossBar: true,
                          healthScalar: 1.0f,
@@ -272,7 +272,7 @@ namespace Nyxpiri.ULTRAKILL.CybergrindBosses
 
             AddEnemyType(enemyType: EnemyType.Minos,
                          enabled: true,
-                         spawnCost: 140,
+                         spawnCost: 80,
                          spawnWave: 15,
                          showBossBar: true,
                          healthScalar: 1.0f,
@@ -289,7 +289,7 @@ namespace Nyxpiri.ULTRAKILL.CybergrindBosses
 
             AddEnemyType(enemyType: EnemyType.Minotaur,
                          enabled: true,
-                         spawnCost: 150,
+                         spawnCost: 120,
                          spawnWave: 35,
                          showBossBar: true,
                          healthScalar: 1.0f,
@@ -306,7 +306,7 @@ namespace Nyxpiri.ULTRAKILL.CybergrindBosses
 
             AddEnemyType(enemyType: EnemyType.FleshPrison,
                          enabled: true,
-                         spawnCost: 250,
+                         spawnCost: 160,
                          spawnWave: 40,
                          showBossBar: true,
                          healthScalar: 0.6f,
@@ -323,7 +323,7 @@ namespace Nyxpiri.ULTRAKILL.CybergrindBosses
 
             AddEnemyType(enemyType: EnemyType.FleshPanopticon,
                          enabled: true,
-                         spawnCost: 425,
+                         spawnCost: 210,
                          spawnWave: 50,
                          showBossBar: true,
                          healthScalar: 0.6f,
@@ -340,7 +340,7 @@ namespace Nyxpiri.ULTRAKILL.CybergrindBosses
 
             AddEnemyType(enemyType: EnemyType.MinosPrime,
                          enabled: true,
-                         spawnCost: 340,
+                         spawnCost: 200,
                          spawnWave: 40,
                          showBossBar: true,
                          healthScalar: 1.0f,
@@ -357,7 +357,7 @@ namespace Nyxpiri.ULTRAKILL.CybergrindBosses
 
             AddEnemyType(enemyType: EnemyType.SisyphusPrime,
                          enabled: true,
-                         spawnCost: 310,
+                         spawnCost: 190,
                          spawnWave: 50,
                          showBossBar: true,
                          healthScalar: 1.0f,

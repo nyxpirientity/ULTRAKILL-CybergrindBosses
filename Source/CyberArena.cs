@@ -91,14 +91,24 @@ namespace Nyxpiri.ULTRAKILL.CybergrindBosses
             combinedGridStaticObjectFA.GetValue(Grid).SetActive(false);
 
             var jumpPadPoolFA = new FieldAccess<EndlessGrid, List<CyberPooledPrefab>>("jumpPadPool");
+            var spawnedPrefabsFA = new FieldAccess<EndlessGrid, List<GameObject>>("spawnedPrefabs");
 
             var jumpPadPool = jumpPadPoolFA.GetValue(Grid);
+            var spawnedPrefabs = spawnedPrefabsFA.GetValue(Grid);
 
             DisableZapper();
 
             foreach (var jumpPad in jumpPadPool)
             {
                 jumpPad.gameObject.SetActive(false);
+            }
+
+            foreach (var go in spawnedPrefabs)
+            {
+                if (go.GetComponentInChildren<EndlessStairs>() != null)
+                {
+                    go.SetActive(false);
+                }
             }
         }
 
