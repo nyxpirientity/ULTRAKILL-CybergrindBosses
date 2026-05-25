@@ -43,7 +43,6 @@ namespace Nyxpiri.ULTRAKILL.CybergrindBosses
         public static bool EnemyEntriesInitialized = false;
 
         public static ConfigEntry<float> PointsRatioAllocatedToBosses { get; private set; } = null;
-        public static ConfigEntry<int> BossSpawnIterations { get; private set; } = null;
         public static ConfigEntry<int> BossWaveCooldownMin { get; private set; } = null;
         public static ConfigEntry<int> BossWaveCooldownMax { get; private set; }
         public static ConfigEntry<bool> OnlyCountBossWavesTowardsBossCooldowns { get; private set; }
@@ -79,7 +78,6 @@ namespace Nyxpiri.ULTRAKILL.CybergrindBosses
             ForcedFakeFallDelayMaxWaves = _config.Bind("FakeFall", "ForcedFakeFallDelayMaxWaves", 12);
 
             PointsRatioAllocatedToBosses = _config.Bind("General", "PointsRatioAllocatedToBosses", 0.5f);
-            BossSpawnIterations = _config.Bind("General", "BossSpawnIterations", 75);
             BossWaveCooldownMin = _config.Bind("General", "GlobalBossWaveCooldownMin", 1);
             BossWaveCooldownMax = _config.Bind("General", "GlobalBossWaveCooldownMax", 1);
             UseBossWaveCooldown = _config.Bind("General", "UseGlobalBossWaveCooldown", true);

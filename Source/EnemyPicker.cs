@@ -7,6 +7,7 @@ using System.Linq;
 using System.Collections.Generic;
 using UnityEngine.SceneManagement;
 using Nyxpiri.ULTRAKILL.NyxLib.EnemyTypes;
+using Nyxpiri.Unity.Collections;
 
 namespace Nyxpiri.ULTRAKILL.CybergrindBosses
 {
@@ -45,8 +46,6 @@ namespace Nyxpiri.ULTRAKILL.CybergrindBosses
 
             Log.Debug($"deciding bosses to spawn with {points} points (allPoints = {allPoints})");
 
-            HashSet<AEnemyType> deniedList = new HashSet<AEnemyType>();
-
             bool isFakeFall = false;
             bool canBeFakeFall = true;
 
@@ -61,9 +60,11 @@ namespace Nyxpiri.ULTRAKILL.CybergrindBosses
                 }
             }
 
-            for (int i = 0; i < Options.BossSpawnIterations.Value && points > 0; i++)
+            var enemyEntries = Options.EnemyEntries.ToList();
+            enemyEntries.Shuffle();
+
+            foreach (var entryRaw in enemyEntries)
             {
-                var entryRaw = Options.EnemyEntries.ElementAt(UnityEngine.Random.Range(0, Options.EnemyEntries.Count));
                 var entry = entryRaw.Value;
 
                 SpawnCostBoosts.TryAdd(entryRaw.Key, 0);
@@ -97,14 +98,8 @@ namespace Nyxpiri.ULTRAKILL.CybergrindBosses
                     boostPercentage = 0;
                 }
 
-                if (deniedList.Contains(entryRaw.Key))
-                {
-                    continue;
-                }
-
                 if (UnityEngine.Random.Range(0.0f, 1.0f) < boostPercentage)
                 {
-                    deniedList.Add(entryRaw.Key);
                     continue;
                 }
 
