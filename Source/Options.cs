@@ -445,7 +445,7 @@ namespace Nyxpiri.ULTRAKILL.CybergrindBosses
 
         private static void AddEnemyType(EnemyType enemyType, bool enabled, int spawnCost, int spawnWave, bool showBossBar, float healthScalar, int spawnCooldown, float spawnCostBonusScalar, float spawnCostBonusSpentScalar, float spawnCostRequirementScalar, float spawnCostSpentScalar, int individualCostIncreasePerSpawn, int individualPersistentSpawnCostBoost, int individualPersistentSpawnCostBoostMax, int individualPersistentSpawnCostBoostDecay)
         {
-            AddEnemyType(EnemyTypeDB.Instance.GetVanillaType(enemyType), enabled, spawnCost, spawnWave, showBossBar, healthScalar, spawnCooldown, spawnCostBonusScalar, spawnCostBonusSpentScalar, spawnCostRequirementScalar, spawnCostSpentScalar, individualCostIncreasePerSpawn, individualPersistentSpawnCostBoost, individualPersistentSpawnCostBoostMax, individualPersistentSpawnCostBoostDecay);
+            AddEnemyType(EnemyTypeDB.Instance.GetVanillaType(enemyType), enabled, spawnCost, spawnWave, showBossBar, healthScalar, spawnCooldown, spawnCostBonusScalar, spawnCostRequirementScalar, spawnCostSpentScalar, spawnCostBonusSpentScalar, individualCostIncreasePerSpawn, individualPersistentSpawnCostBoost, individualPersistentSpawnCostBoostMax, individualPersistentSpawnCostBoostDecay);
         }
 
         private static void AddEnemyType(NyxLib.AEnemyType enemyType, bool enabled, int spawnCost, int spawnWave, bool showBossBar, float healthScalar, int spawnCooldown, float spawnCostBonusScalar, float spawnCostRequirementScalar, float spawnCostSpentScalar, float spawnCostBonusSpentScalar, int individualCostIncreasePerSpawn, int individualPersistentSpawnCostBoost, int individualPersistentSpawnCostBoostMax, int individualPersistentSpawnCostBoostDecay)
