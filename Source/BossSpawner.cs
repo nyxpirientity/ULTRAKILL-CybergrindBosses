@@ -49,6 +49,8 @@ namespace Nyxpiri.ULTRAKILL.CybergrindBosses
 
         private void NextWave(EventMethodCancelInfo cancelInfo, EndlessGrid endlessGrid)
         {
+            _bossPicker.ShouldFakeFall = false;
+
             if (Cheats.IsCheatDisabled(CybergrindBosses.CheatID))
             {
                 return;
@@ -64,7 +66,10 @@ namespace Nyxpiri.ULTRAKILL.CybergrindBosses
             else
             {
                 _bossPicker.TypesToSpawn.Clear();
+                _bossWaveCooldown -= 1;
             }
+
+            _bossPicker.UpdateForceFakeFallCooldown();
 
             if (_bossPicker.ShouldFakeFall)
             {
@@ -79,8 +84,6 @@ namespace Nyxpiri.ULTRAKILL.CybergrindBosses
             {
                 _bossPicker.UpdateBossCooldowns();
             }
-
-            _bossWaveCooldown -= 1;
         }
 
         private void OnEnemySpawningFinished(CyberArena arena)
@@ -145,6 +148,8 @@ namespace Nyxpiri.ULTRAKILL.CybergrindBosses
 
                 points += attributes.FakeFallDespawnValue.Value;
 
+                SpawnFakeFallEnemy(fakeFallSpawnables, ref points, spawnCostIncreases);
+
                 enemy.Eid.InstaKill();
                 enemy.InstaDestroy();
             }
@@ -170,9 +175,9 @@ namespace Nyxpiri.ULTRAKILL.CybergrindBosses
                 spawnCostIncreases.TryAdd(spawnable.Item1, 0);
                 var attribs = spawnable.Item2;
                 var type = spawnable.Item1;
-                var cost = attribs.FakeFallSpawnCost.Value + spawnCostIncreases[spawnable.Item1];
+                var cost = attribs.FakeFallSpawnCost.Value;
 
-                if (cost > mostExpensiveCost && points >= cost)
+                if (cost > mostExpensiveCost && points >= cost + spawnCostIncreases[spawnable.Item1])
                 {
                     mostExpensive = spawnable;
                     mostExpensiveCost = cost;
@@ -184,7 +189,7 @@ namespace Nyxpiri.ULTRAKILL.CybergrindBosses
                 return false;
             }
 
-            var newEnemyGo = EnemyPrefabDatabase.TrySpawnAt(mostExpensive.Value.Item1, UnityEngine.Random.insideUnitSphere * 30.0f + CyberArena.HorizontalCenter, Quaternion.identity, EndlessGrid.Instance.transform, true);
+            var newEnemyGo = EnemyPrefabDatabase.TrySpawnAt(mostExpensive.Value.Item1, (Vector3.Scale(UnityEngine.Random.insideUnitSphere * 30.0f, new Vector3(1.0f, 0.0f, 1.0f))) + CyberArena.HorizontalCenter, Quaternion.identity, EndlessGrid.Instance.transform, true);
             var enemy = newEnemyGo.GetComponentInChildren<EnemyComponents>();
             enemy.Eid.dontCountAsKills = false;
             var collider = enemy.GetComponentsInChildren<Collider>();

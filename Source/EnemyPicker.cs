@@ -25,6 +25,11 @@ namespace Nyxpiri.ULTRAKILL.CybergrindBosses
         {
             Assert.IsTrue(Cheats.Enabled);
 
+            if (_currentFakeFallDelay < 0)
+            {
+                _currentFakeFallDelay = UnityEngine.Random.Range(Options.ForcedFakeFallDelayMinWaves.Value, Options.ForcedFakeFallDelayMaxWaves.Value);
+            }
+
             EnemyAmountToAdd = 0;
 
             TypesToSpawn.Clear();
@@ -45,11 +50,14 @@ namespace Nyxpiri.ULTRAKILL.CybergrindBosses
             bool isFakeFall = false;
             bool canBeFakeFall = true;
 
+            SpawnedLastWave.Clear();
+
             if (Options.UseForcedFakeFall.Value && wave >= Options.ForcedFakeFallMinWave.Value)
             {
                 if (_wavesSinceFakeFall >= _currentFakeFallDelay)
                 {
                     isFakeFall = true;
+                    Log.Debug($"Forcing fake fall!");
                 }
             }
 
@@ -116,12 +124,19 @@ namespace Nyxpiri.ULTRAKILL.CybergrindBosses
                     }
                 }
 
-                var attributes = Options.EnemiesAttributes.GetValueOrDefault(entryRaw.Key, Options.EnemiesAttributes[EnemyTypeDB.Instance.GetVanillaType(EnemyType.Filth)]);
+                var attributes = Options.EnemiesAttributes.GetValueOrDefault(entryRaw.Key, null);
+
+                if (attributes == null)
+                {
+                    attributes = Options.EnemiesAttributes[EnemyTypeDB.Instance.GetVanillaType(EnemyType.Filth)];
+                    Log.Warning($"{entryRaw.Key} doesn't have an attributes entry, falling back to Filth attributes entry");
+                }
 
                 if (!attributes.CanSpawnInFakeFall.Value)
                 {
-                    if (!isFakeFall)
+                    if (!isFakeFall && canBeFakeFall)
                     {
+                        Log.Debug($"{entryRaw.Key} selected and canBeFakeFall is true yet isFakeFall is false, can no longer be fake fall.");
                         canBeFakeFall = false;
                     }
                     else
@@ -132,13 +147,19 @@ namespace Nyxpiri.ULTRAKILL.CybergrindBosses
 
                 if (entryRaw.Key == EnemyTypeDB.Instance.GetVanillaType(EnemyType.Geryon) && canBeFakeFall)
                 {
+                    Log.Debug($"Geryon selected, we shall fake fall.");
                     isFakeFall = true;
+                }
+                else if (entryRaw.Key == EnemyTypeDB.Instance.GetVanillaType(EnemyType.Geryon) && !canBeFakeFall)
+                {
+                    Log.Debug($"Geryon tried but we can't be fake fall, no fake fall");
+                    continue;
                 }
 
                 SpawnedLastWave.Add(entryRaw.Key);
                 points -= spawnCostToSpend;
                 spawnCostBonus += (int)(baseSpawnCost * entry.SpawnCostBonusScalar.Value);
-                spawnCostBonusSpent += (int)(baseSpawnCost * entry.SpawnCostBonusSpentScalar.Value);
+                spawnCostBonusSpent += (int)((int)(baseSpawnCost * entry.SpawnCostBonusScalar.Value) * entry.SpawnCostBonusSpentScalar.Value);
                 individualSpawnCostBonuses[entryRaw.Key] += entry.IndividualCostIncreasePerSpawn.Value;
                 TypesToSpawn.Enqueue(entryRaw.Key);
                 EnemyAmountToAdd += 1;
@@ -150,13 +171,14 @@ namespace Nyxpiri.ULTRAKILL.CybergrindBosses
 
                 ShouldFakeFall = isFakeFall;
 
-                if (ShouldFakeFall)
-                {
-                    _currentFakeFallDelay = UnityEngine.Random.Range(Options.ForcedFakeFallDelayMinWaves.Value, Options.ForcedFakeFallDelayMaxWaves.Value);
-                    _wavesSinceFakeFall = 0;
-                }
+                Log.Debug($"adding type {entryRaw.Key} to types to spawn for a cost of {spawnCostToSpend} leaving {points} points left (spawnCostBonus: {spawnCostBonus}, spawnCostBonusSpent: {spawnCostBonusSpent})");
+            }
 
-                Log.Debug($"adding type {entryRaw.Key} to types to spawn");
+            if (ShouldFakeFall)
+            {
+                _currentFakeFallDelay = UnityEngine.Random.Range(Options.ForcedFakeFallDelayMinWaves.Value, Options.ForcedFakeFallDelayMaxWaves.Value);
+                _wavesSinceFakeFall = 0;
+                Log.Debug($"ShouldFakeFall == true, _wavesSinceFakeFall: {_wavesSinceFakeFall}, _currentFakeFallDelay: {_currentFakeFallDelay}");
             }
 
             foreach (var entry in TypesToSpawn)
@@ -166,7 +188,12 @@ namespace Nyxpiri.ULTRAKILL.CybergrindBosses
             }
 
             pointsFi.SetValue(endlessGrid, allPoints - (maxPoints - points));
-            Log.Debug($"should spawn {TypesToSpawn.Count} types");
+            Log.Debug($"should spawn {TypesToSpawn.Count} bosses");
+        }
+
+        internal void UpdateForceFakeFallCooldown()
+        {
+            _wavesSinceFakeFall += 1;
         }
 
         internal void UpdateBossCooldowns()
@@ -191,8 +218,6 @@ namespace Nyxpiri.ULTRAKILL.CybergrindBosses
 
             SpawnCooldowns = newSpawnCooldowns;
             SpawnCostBoosts = newSpawnCostBoosts;
-
-            _wavesSinceFakeFall += 1;
         }
 
         public Queue<NyxLib.AEnemyType> TypesToSpawn { get; private set; } = new Queue<NyxLib.AEnemyType>();
@@ -200,7 +225,7 @@ namespace Nyxpiri.ULTRAKILL.CybergrindBosses
         public bool ShouldFakeFall = false;
         internal static int EnemyAmountToAdd { get; set; } = 0;
         int _wavesSinceFakeFall = 0;
-        int _currentFakeFallDelay = 1000;
+        int _currentFakeFallDelay = -10;
         private Dictionary<NyxLib.AEnemyType, int> SpawnCooldowns = new Dictionary<NyxLib.AEnemyType, int>();
         private Dictionary<NyxLib.AEnemyType, int> SpawnCostBoosts = new Dictionary<NyxLib.AEnemyType, int>();
     }

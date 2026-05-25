@@ -170,6 +170,9 @@ namespace Nyxpiri.ULTRAKILL.CybergrindBosses
                 Vector3 size = ffCollider.size;
                 size.Scale(new Vector3(100.0f, 1.0f, 100.0f));
                 ffCollider.size = size;
+                var ffz = FakeFallGo.GetComponent<FakeFallZone>();
+
+                ffz.heightControlAmount = 30.0f;
             }
         }
 
@@ -317,26 +320,6 @@ namespace Nyxpiri.ULTRAKILL.CybergrindBosses
             if (NyxLib.Cheats.IsCheatDisabled(CybergrindBosses.CheatID))
             {
                 return;
-            }
-
-            var anw = Grid.GetComponent<ActivateNextWave>();
-            if (anw.deadEnemies >= Grid.enemyAmount)
-            {
-                var enemies = EnemyTracker.Instance.GetCurrentEnemies();
-                int numAlive = 0;
-
-                foreach (var enemy in enemies)
-                {
-                    if (!enemy.dead && !(enemy.dontCountAsKills || enemy.GetComponent<GrindBoss>() != null || enemy.GetComponent<GrindTree>() != null))
-                    {
-                        numAlive += 1;
-                    }
-                }
-
-                if (numAlive != 0)
-                {
-                    Grid.enemyAmount += numAlive;
-                }
             }
         }
 

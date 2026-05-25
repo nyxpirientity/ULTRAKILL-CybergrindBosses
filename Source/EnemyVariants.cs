@@ -17,6 +17,7 @@ namespace Nyxpiri.ULTRAKILL.CybergrindBosses
         private static GameObject prefabHolder = null;
         public static Geryon GeryonPrefab = null;
         public static FakeFallZone FakeFallZone = null;
+        public static GameObject FakeFallZoneHud = null;
 
         public static GameObject SpawnAgonyAndTundra(Vector3 position, Quaternion rotation, Transform parent)
         {
