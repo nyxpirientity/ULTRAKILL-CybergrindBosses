@@ -44,7 +44,7 @@ namespace Nyxpiri.ULTRAKILL.CybergrindBosses
             int spawnCostBonusSpent = 0;
             Dictionary<NyxLib.AEnemyType, int> individualSpawnCostBonuses = new Dictionary<NyxLib.AEnemyType, int>();
 
-            Log.Debug($"deciding bosses to spawn with {points} points (allPoints = {allPoints})");
+            Log.Debug($"---------- deciding bosses to spawn with {points} points (allPoints = {allPoints}) -------------");
 
             bool isFakeFall = false;
             bool canBeFakeFall = true;
@@ -61,112 +61,120 @@ namespace Nyxpiri.ULTRAKILL.CybergrindBosses
             }
 
             var enemyEntries = Options.EnemyEntries.ToList();
+            HashSet<AEnemyType> denyList = new HashSet<AEnemyType>();
             enemyEntries.Shuffle();
 
-            foreach (var entryRaw in enemyEntries)
+            for (int i = 0; i < Options.BossPickerIterations.Value; i++)
             {
-                var entry = entryRaw.Value;
-
-                SpawnCostBoosts.TryAdd(entryRaw.Key, 0);
-
-                if (!entry.Enabled.Value)
+                foreach (var entryRaw in enemyEntries)
                 {
-                    //Log.Debug($"{entryRaw.Key} DENIED on the basis of being not enabled");
-                    continue;
-                }
+                    var entry = entryRaw.Value;
+                    Log.Debug($"{entryRaw.Key} being TESTED to spawn");
 
-                if (SpawnCooldowns.GetValueOrDefault(entryRaw.Key, 0) > 0)
-                {
-                    continue;
-                }
+                    SpawnCostBoosts.TryAdd(entryRaw.Key, 0);
 
-                if (wave < entry.SpawnWave.Value)
-                {
-                    //Log.Debug($"{entryRaw.Key} DENIED on the basis of wave {wave} being less than {entry.SpawnWave.Value}");
-                    continue;
-                }
-
-                individualSpawnCostBonuses.TryAdd(entryRaw.Key, 0);
-
-                var baseSpawnCost = entry.SpawnCost.Value;
-                var spawnCost = baseSpawnCost + spawnCostBonus + individualSpawnCostBonuses[entryRaw.Key] + SpawnCostBoosts[entryRaw.Key];
-                var boostPercentage = NyxMath.NormalizeToRange(SpawnCostBoosts[entryRaw.Key], 0, entryRaw.Value.IndividualPersistentSpawnCostBoostMax.Value);
-                var spawnCostToSpend = (int)(baseSpawnCost * entry.SpawnCostSpentScalar.Value) + spawnCostBonusSpent;
-
-                if (entryRaw.Value.IndividualPersistentSpawnCostBoostMax.Value == 0)
-                {
-                    boostPercentage = 0;
-                }
-
-                if (UnityEngine.Random.Range(0.0f, 1.0f) < boostPercentage)
-                {
-                    continue;
-                }
-
-                if (points < (spawnCost * entry.SpawnCostRequirementScalar.Value))
-                {
-                    //Log.Debug($"{entryRaw.Key} DENIED on the basis of {points} being less than {spawnCost * entry.SpawnCostRequirementScalar.Value}");
-                    continue;
-                }
-
-                SpawnCooldowns[entryRaw.Key] = entryRaw.Value.SpawnCooldown.Value;
-
-                if (entryRaw.Key.VanillaEnumValue == EnemyType.FleshPanopticon || entryRaw.Key.VanillaEnumValue == EnemyType.FleshPrison)
-                {
-                    if (TypesToSpawn.Contains(EnemyTypeDB.Instance.GetVanillaType(EnemyType.FleshPanopticon)) || TypesToSpawn.Contains(EnemyTypeDB.Instance.GetVanillaType(EnemyType.FleshPrison)))
+                    if (!entry.Enabled.Value)
                     {
+                        Log.Debug($"{entryRaw.Key} DENIED on the basis of being not enabled");
                         continue;
                     }
-                }
 
-                var attributes = Options.EnemiesAttributes.GetValueOrDefault(entryRaw.Key, null);
-
-                if (attributes == null)
-                {
-                    attributes = Options.EnemiesAttributes[EnemyTypeDB.Instance.GetVanillaType(EnemyType.Filth)];
-                    Log.Warning($"{entryRaw.Key} doesn't have an attributes entry, falling back to Filth attributes entry");
-                }
-
-                if (!attributes.CanSpawnInFakeFall.Value)
-                {
-                    if (!isFakeFall && canBeFakeFall)
+                    if (SpawnCooldowns.GetValueOrDefault(entryRaw.Key, 0) > 0)
                     {
-                        Log.Debug($"{entryRaw.Key} selected and canBeFakeFall is true yet isFakeFall is false, can no longer be fake fall.");
-                        canBeFakeFall = false;
-                    }
-                    else
-                    {
+                        Log.Debug($"{entryRaw.Key} DENIED on the basis of wave cooldown {SpawnCooldowns.GetValueOrDefault(entryRaw.Key, 0)}");
                         continue;
                     }
-                }
 
-                if (entryRaw.Key == EnemyTypeDB.Instance.GetVanillaType(EnemyType.Geryon) && canBeFakeFall)
-                {
-                    Log.Debug($"Geryon selected, we shall fake fall.");
-                    isFakeFall = true;
-                }
-                else if (entryRaw.Key == EnemyTypeDB.Instance.GetVanillaType(EnemyType.Geryon) && !canBeFakeFall)
-                {
-                    Log.Debug($"Geryon tried but we can't be fake fall, no fake fall");
-                    continue;
-                }
+                    if (wave < entry.SpawnWave.Value)
+                    {
+                        Log.Debug($"{entryRaw.Key} DENIED on the basis of wave {wave} being less than {entry.SpawnWave.Value}");
+                        continue;
+                    }
 
-                SpawnedLastWave.Add(entryRaw.Key);
-                points -= spawnCostToSpend;
-                spawnCostBonus += (int)(baseSpawnCost * entry.SpawnCostBonusScalar.Value);
-                spawnCostBonusSpent += (int)((int)(baseSpawnCost * entry.SpawnCostBonusScalar.Value) * entry.SpawnCostBonusSpentScalar.Value);
-                individualSpawnCostBonuses[entryRaw.Key] += entry.IndividualCostIncreasePerSpawn.Value;
-                TypesToSpawn.Enqueue(entryRaw.Key);
-                EnemyAmountToAdd += 1;
+                    individualSpawnCostBonuses.TryAdd(entryRaw.Key, 0);
 
-                if (entryRaw.Key == EnemyVariants.TundraAgonyType)
-                {
+                    var baseSpawnCost = entry.SpawnCost.Value;
+                    var spawnCost = baseSpawnCost + spawnCostBonus + individualSpawnCostBonuses[entryRaw.Key] + SpawnCostBoosts[entryRaw.Key];
+                    var boostPercentage = NyxMath.NormalizeToRange(SpawnCostBoosts[entryRaw.Key], 0, entryRaw.Value.IndividualPersistentSpawnCostBoostMax.Value);
+                    var spawnCostToSpend = (int)(baseSpawnCost * entry.SpawnCostSpentScalar.Value) + spawnCostBonusSpent;
+
+                    if (entryRaw.Value.IndividualPersistentSpawnCostBoostMax.Value == 0)
+                    {
+                        boostPercentage = 0;
+                    }
+
+                    if (UnityEngine.Random.Range(0.0f, 1.0f) < boostPercentage || denyList.Contains(entryRaw.Key))
+                    {
+                        Log.Debug($"{entryRaw.Key} DENIED on the basis of {boostPercentage} rng roll not working out for it");
+                        denyList.Add(entryRaw.Key);
+                        continue;
+                    }
+
+                    if (points < (spawnCost * entry.SpawnCostRequirementScalar.Value))
+                    {
+                        Log.Debug($"{entryRaw.Key} DENIED on the basis of {points} being less than {spawnCost * entry.SpawnCostRequirementScalar.Value}");
+                        continue;
+                    }
+
+                    if (entryRaw.Key.VanillaEnumValue == EnemyType.FleshPanopticon || entryRaw.Key.VanillaEnumValue == EnemyType.FleshPrison)
+                    {
+                        if (TypesToSpawn.Contains(EnemyTypeDB.Instance.GetVanillaType(EnemyType.FleshPanopticon)) || TypesToSpawn.Contains(EnemyTypeDB.Instance.GetVanillaType(EnemyType.FleshPrison)))
+                        {
+                            Log.Debug($"{entryRaw.Key} DENIED on the basis of conflicting type being intended to spawn");
+                            continue;
+                        }
+                    }
+
+                    var attributes = Options.EnemiesAttributes.GetValueOrDefault(entryRaw.Key, null);
+
+                    if (attributes == null)
+                    {
+                        attributes = Options.EnemiesAttributes[EnemyTypeDB.Instance.GetVanillaType(EnemyType.Filth)];
+                        Log.Warning($"{entryRaw.Key} doesn't have an attributes entry, falling back to Filth attributes entry");
+                    }
+
+                    if (!attributes.CanSpawnInFakeFall.Value)
+                    {
+                        if (!isFakeFall && canBeFakeFall)
+                        {
+                            Log.Debug($"{entryRaw.Key} selected and canBeFakeFall is true yet isFakeFall is false, can no longer be fake fall.");
+                            canBeFakeFall = false;
+                        }
+                        else if (isFakeFall)
+                        {
+                            continue;
+                        }
+                    }
+
+                    if (entryRaw.Key == EnemyTypeDB.Instance.GetVanillaType(EnemyType.Geryon) && canBeFakeFall)
+                    {
+                        Log.Debug($"Geryon selected, we shall fake fall.");
+                        isFakeFall = true;
+                    }
+                    else if (entryRaw.Key == EnemyTypeDB.Instance.GetVanillaType(EnemyType.Geryon) && !canBeFakeFall)
+                    {
+                        Log.Debug($"Geryon tried but we can't be fake fall, no fake fall");
+                        continue;
+                    }
+
+                    SpawnCooldowns[entryRaw.Key] = entryRaw.Value.SpawnCooldown.Value;
+                    SpawnedLastWave.Add(entryRaw.Key);
+                    points -= spawnCostToSpend;
+                    spawnCostBonus += (int)(baseSpawnCost * entry.SpawnCostBonusScalar.Value);
+                    spawnCostBonusSpent += (int)((int)(baseSpawnCost * entry.SpawnCostBonusScalar.Value) * entry.SpawnCostBonusSpentScalar.Value);
+                    individualSpawnCostBonuses[entryRaw.Key] += entry.IndividualCostIncreasePerSpawn.Value;
+                    TypesToSpawn.Enqueue(entryRaw.Key);
                     EnemyAmountToAdd += 1;
+
+                    if (entryRaw.Key == EnemyVariants.TundraAgonyType)
+                    {
+                        EnemyAmountToAdd += 1;
+                    }
+
+                    ShouldFakeFall = isFakeFall;
+
+                    Log.Debug($"adding type {entryRaw.Key} to types to spawn for a cost of {spawnCostToSpend} leaving {points} points left (spawnCostBonus: {spawnCostBonus}, spawnCostBonusSpent: {spawnCostBonusSpent})");
                 }
-
-                ShouldFakeFall = isFakeFall;
-
-                Log.Debug($"adding type {entryRaw.Key} to types to spawn for a cost of {spawnCostToSpend} leaving {points} points left (spawnCostBonus: {spawnCostBonus}, spawnCostBonusSpent: {spawnCostBonusSpent})");
             }
 
             if (ShouldFakeFall)
@@ -184,7 +192,7 @@ namespace Nyxpiri.ULTRAKILL.CybergrindBosses
             }
 
             pointsFi.SetValue(endlessGrid, allPoints - (maxPoints - points));
-            Log.Debug($"should spawn {TypesToSpawn.Count} bosses");
+            Log.Debug($"--------- should spawn {TypesToSpawn.Count} bosses -------------");
         }
 
         internal void UpdateForceFakeFallCooldown()

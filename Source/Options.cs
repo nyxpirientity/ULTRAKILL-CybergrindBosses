@@ -42,6 +42,7 @@ namespace Nyxpiri.ULTRAKILL.CybergrindBosses
         public static Dictionary<NyxLib.AEnemyType, EnemyAttributes> EnemiesAttributes = new Dictionary<NyxLib.AEnemyType, EnemyAttributes>();
         public static bool EnemyEntriesInitialized = false;
 
+        public static ConfigEntry<int> BossPickerIterations { get; private set; } = null;
         public static ConfigEntry<float> PointsRatioAllocatedToBosses { get; private set; } = null;
         public static ConfigEntry<int> BossWaveCooldownMin { get; private set; } = null;
         public static ConfigEntry<int> BossWaveCooldownMax { get; private set; }
@@ -72,6 +73,7 @@ namespace Nyxpiri.ULTRAKILL.CybergrindBosses
             _configFileManager.Initialize(_config);
             _configFileManager.OnReload += Reload;
 
+            BossPickerIterations = _config.Bind("General", "BossPickerIterations", 4);
             UseForcedFakeFall = _config.Bind("FakeFall", "UseForcedFakeFall", false);
             ForcedFakeFallMinWave = _config.Bind("FakeFall", "ForcedFakeFallMinWave", 30);
             ForcedFakeFallDelayMinWaves = _config.Bind("FakeFall", "ForcedFakeFallDelayMinWaves", 9);
@@ -306,7 +308,7 @@ namespace Nyxpiri.ULTRAKILL.CybergrindBosses
 
             AddEnemyType(enemyType: EnemyType.FleshPrison,
                          enabled: true,
-                         spawnCost: 160,
+                         spawnCost: 190,
                          spawnWave: 40,
                          showBossBar: true,
                          healthScalar: 0.6f,
@@ -323,7 +325,7 @@ namespace Nyxpiri.ULTRAKILL.CybergrindBosses
 
             AddEnemyType(enemyType: EnemyType.FleshPanopticon,
                          enabled: true,
-                         spawnCost: 210,
+                         spawnCost: 260,
                          spawnWave: 50,
                          showBossBar: true,
                          healthScalar: 0.6f,
@@ -340,7 +342,7 @@ namespace Nyxpiri.ULTRAKILL.CybergrindBosses
 
             AddEnemyType(enemyType: EnemyType.MinosPrime,
                          enabled: true,
-                         spawnCost: 200,
+                         spawnCost: 250,
                          spawnWave: 40,
                          showBossBar: true,
                          healthScalar: 1.0f,
@@ -357,7 +359,7 @@ namespace Nyxpiri.ULTRAKILL.CybergrindBosses
 
             AddEnemyType(enemyType: EnemyType.SisyphusPrime,
                          enabled: true,
-                         spawnCost: 190,
+                         spawnCost: 215,
                          spawnWave: 50,
                          showBossBar: true,
                          healthScalar: 1.0f,
