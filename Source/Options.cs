@@ -467,10 +467,10 @@ namespace Nyxpiri.ULTRAKILL.CybergrindBosses
         private static void AddEnemyAttribs(AEnemyType enemyType, bool canSpawnInFakeFall, int fakeFallSpawnCost, int fakeFallSpawnCostIncreasePerSpawn, int fakeFallDespawnValue)
         {
             var attribs = new EnemyAttributes();
-            attribs.CanSpawnInFakeFall = _config.Bind($"Attributes.{enemyType.Name}", "CanSpawnInFakeFall", canSpawnInFakeFall);
-            attribs.FakeFallSpawnCost = _config.Bind($"Attributes.{enemyType.Name}", "FakeFallSpawnCost", fakeFallSpawnCost);
-            attribs.FakeFallDespawnValue = _config.Bind($"Attributes.{enemyType.Name}", "FakeFallDespawnValue", fakeFallDespawnValue);
-            attribs.FakeFallSpawnCostIncreasePerSpawn = _config.Bind($"Attributes.{enemyType.Name}", "FakeFallSpawnCostIncreasePerSpawn", fakeFallSpawnCostIncreasePerSpawn);
+            attribs.CanSpawnInFakeFall = _config.Bind($"Attributes.{enemyType.Name}", "CanSpawnInFakeFall", canSpawnInFakeFall, $"set if {enemyType} can spawn/exist in fake falls");
+            attribs.FakeFallSpawnCost = _config.Bind($"Attributes.{enemyType.Name}", "FakeFallSpawnCost", fakeFallSpawnCost, $"the amount of fake fall points {enemyType} costs, if it can be spawned.");
+            attribs.FakeFallDespawnValue = _config.Bind($"Attributes.{enemyType.Name}", "FakeFallDespawnValue", fakeFallDespawnValue, $"the amount of fake fall points {enemyType} will be worth when despawned, if it cannot be kept yet spawned");
+            attribs.FakeFallSpawnCostIncreasePerSpawn = _config.Bind($"Attributes.{enemyType.Name}", "FakeFallSpawnCostIncreasePerSpawn", fakeFallSpawnCostIncreasePerSpawn, $"the amount of extra fake fall points {enemyType} will cost when it is spawned");
             EnemiesAttributes.TryAdd(enemyType, attribs);
         }
 
@@ -496,12 +496,12 @@ namespace Nyxpiri.ULTRAKILL.CybergrindBosses
             entry.SpawnCooldown = _config.Bind($"Boss.{enemyType}", $"SpawnCooldown", spawnCooldown, $"A cooldown in the form of a number of waves before {enemyType} can spawn again");
             entry.SpawnCostBonusScalar = _config.Bind($"Boss.{enemyType}", $"SpawnCostBonusScalar", spawnCostBonusScalar, $"When {enemyType} is picked to spawn in a wave, their base cost scaled by this value will be added as required cost for every other boss tried to be spawned that wave");
             entry.SpawnCostBonusSpentScalar = _config.Bind($"Boss.{enemyType}", $"SpawnCostBonusSpentScalar", spawnCostBonusSpentScalar, $"Scalar for the amount of bonus cost will be added to the full bonus spent cost pool for this wave. This effects how many extra points after {enemyType} will actually be spent, regardless of the base requirement. (using 'SpawnCost * SpawnCostBonusSpentScalar' as a base) ");
-            entry.SpawnCostRequirementScalar = _config.Bind($"Boss.{enemyType}", $"SpawnCostRequirementScalar", spawnCostRequirementScalar);
-            entry.SpawnCostSpentScalar = _config.Bind($"Boss.{enemyType}", $"SpawnCostSpentScalar", spawnCostSpentScalar);
-            entry.IndividualCostIncreasePerSpawn = _config.Bind($"Boss.{enemyType}", $"IndividualCostIncreasePerSpawn", individualCostIncreasePerSpawn);
-            entry.IndividualPersistentSpawnCostBoost = _config.Bind($"Boss.{enemyType}", $"IndividualPersistentSpawnCostBoost", individualPersistentSpawnCostBoost);
-            entry.IndividualPersistentSpawnCostBoostMax = _config.Bind($"Boss.{enemyType}", $"IndividualPersistentSpawnCostBoostMax", individualPersistentSpawnCostBoostMax);
-            entry.IndividualPersistentSpawnCostBoostDecay = _config.Bind($"Boss.{enemyType}", $"IndividualPersistentSpawnCostBoostDecay", individualPersistentSpawnCostBoostDecay);
+            entry.SpawnCostRequirementScalar = _config.Bind($"Boss.{enemyType}", $"SpawnCostRequirementScalar", spawnCostRequirementScalar, $"Scalar for the required points that {enemyType} will cost (doesn't effect how much is *spent*)");
+            entry.SpawnCostSpentScalar = _config.Bind($"Boss.{enemyType}", $"SpawnCostSpentScalar", spawnCostSpentScalar, $"Scalar for the points that {enemyType} will cost and be spent (doesn't effect how much is *required*)");
+            entry.IndividualCostIncreasePerSpawn = _config.Bind($"Boss.{enemyType}", $"IndividualCostIncreasePerSpawn", individualCostIncreasePerSpawn, $"Additional amount that {enemyType} will cost within the same single wave for each time it is selected in that specific wave");
+            entry.IndividualPersistentSpawnCostBoost = _config.Bind($"Boss.{enemyType}", $"IndividualPersistentSpawnCostBoost", individualPersistentSpawnCostBoost, $"Similar to IndividualCostIncreasePerSpawn, except the increase from this persists across waves. It is not spent, however the closer it is to the max value the lower the odds of {enemyType} being picked");
+            entry.IndividualPersistentSpawnCostBoostMax = _config.Bind($"Boss.{enemyType}", $"IndividualPersistentSpawnCostBoostMax", individualPersistentSpawnCostBoostMax, $"Maximum spawn cost boost that can be built up for {enemyType}");
+            entry.IndividualPersistentSpawnCostBoostDecay = _config.Bind($"Boss.{enemyType}", $"IndividualPersistentSpawnCostBoostDecay", individualPersistentSpawnCostBoostDecay, $"Amount of spawn cost boost that is lost per wave for {enemyType}");
 
             EnemyEntries.Add(enemyType, entry);
         }
