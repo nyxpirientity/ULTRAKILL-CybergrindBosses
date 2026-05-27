@@ -66,6 +66,8 @@ namespace Nyxpiri.ULTRAKILL.CybergrindBosses
                 return;
             }
 
+            remainingBoostHelpers = Options.MaxGenericBoostHelpersPerEnemy.Value;
+
             garbage = GetComponentInChildren<GabrielBase>();
 
             prison = GetComponentInChildren<FleshPrison>();
@@ -149,7 +151,7 @@ namespace Nyxpiri.ULTRAKILL.CybergrindBosses
         FieldAccess<V2, float> V2DistancePatienceFA = new FieldAccess<V2, float>("distancePatience");
         FieldAccess<EnemyIdentifier, string> OverrideFullNameFA = new FieldAccess<EnemyIdentifier, string>("overrideFullName");
         FieldAccess<GabrielBase, bool> GabrielBaseBossVersionFA = new FieldAccess<GabrielBase, bool>("bossVersion");
-        int remainingBoostHelpers = 7;
+        int remainingBoostHelpers = 0;
         FixedTimeStamp lastBoostHelperTimestamp = new FixedTimeStamp();
 
         protected void FixedUpdate()
@@ -183,12 +185,13 @@ namespace Nyxpiri.ULTRAKILL.CybergrindBosses
                     var dist = Vector3.Distance(CybergrindBosses.cgCenter, horizontalPos);
                     rb.velocity = Vector3.up * (dist * 2.15f) + ((CybergrindBosses.cgCenter - horizontalPos).normalized) * 1.5f * dist;
                     */
-                    rb.velocity = Vector3.up * 80.0f + ((CyberArena.HorizontalCenter - horizontalPos).normalized) * 35.0f;
+                    var dist = Vector3.Distance(CyberArena.HorizontalCenter, horizontalPos);
+                    rb.velocity = Vector3.up * 80.0f + (((CyberArena.HorizontalCenter - horizontalPos).normalized) * dist * 0.25f);
                     lastBoostHelperTimestamp.UpdateToNow();
                     if (v2 != null)
                     {
                         var enemy = v2.GetComponent<EnemyComponents>();
-                        enemy.Eid.ApplyDamage(Vector3.zero, enemy.Eid.transform.position, enemy.InitialHealth / 9.0f, 1.0f, null, true);
+                        enemy.Eid.ApplyDamage(Vector3.zero, enemy.Eid.transform.position, Options.V2FallOffArenaDamage.Value, 1.0f, null, true);
                         var explosionGo = GameObject.Instantiate(NyxLib.Assets.ExplosionPrefab, transform.parent);
                         explosionGo.transform.position = transform.position + Vector3.down;
                         var explosion = explosionGo.GetComponentInChildren<Explosion>();
@@ -216,9 +219,9 @@ namespace Nyxpiri.ULTRAKILL.CybergrindBosses
 
                 if (sisyprime != null && lastBoostHelperTimestamp.TimeSince > 0.45 && !Enemy.Eid.dead)
                 {
-                    if (Enemy.Eid.health > 20.0f)
+                    if (Enemy.Eid.health > Options.SisyphusPrimeFallOffArenaDamage.Value)
                     {
-                        Enemy.Eid.SimpleDamage(20.0f);
+                        Enemy.Eid.SimpleDamage(Options.SisyphusPrimeFallOffArenaDamage.Value);
                     }
                     else
                     {
@@ -231,9 +234,9 @@ namespace Nyxpiri.ULTRAKILL.CybergrindBosses
                 }
                 else if (minosP != null && lastBoostHelperTimestamp.TimeSince > 0.45 && !Enemy.Eid.dead)
                 {
-                    if (Enemy.Eid.health > 14.0f)
+                    if (Enemy.Eid.health > Options.MinosPrimeFallOffArenaDamage.Value)
                     {
-                        Enemy.Eid.SimpleDamage(14.0f);
+                        Enemy.Eid.SimpleDamage(Options.MinosPrimeFallOffArenaDamage.Value);
                     }
                     else
                     {

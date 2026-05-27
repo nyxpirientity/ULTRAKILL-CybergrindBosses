@@ -123,17 +123,25 @@ namespace Nyxpiri.ULTRAKILL.CybergrindBosses
                         continue;
                     }
 
-                    float newSpawnCostBonus = (int)(baseSpawnCost * entry.SpawnCostBonusScalar.Value);
+                    float spawnCostBonusToAdd = (int)(baseSpawnCost * entry.SpawnCostBonusScalar.Value);
                     float spawnCostRequirement = spawnCost;
 
-                    /*int typeIndex = 0;
+                    spawnCostRequirement = spawnCostRequirement * entry.SpawnCostRequirementScalar.Value;
+
                     foreach (var type in TypesToSpawn)
                     {
-                        typeIndex += 1;
-                        spawnCostRequirement += newSpawnCostBonus * Options.EnemyEntries[type].SpawnCostRequirementScalar.Value;
-                    }*/
+                        var otherEntry = Options.EnemyEntries[type];
+                        var otherBaseSpawnCost = otherEntry.SpawnCost.Value;
+                        var otherSpawnCost = otherBaseSpawnCost + (spawnCostBonus + spawnCostBonusToAdd) + individualSpawnCostBonuses[type] + SpawnCostBoosts[type];
+                        float otherSpawnCostRequirement = spawnCost * otherEntry.SpawnCostRequirementScalar.Value;
 
-                    spawnCostRequirement = spawnCostRequirement * entry.SpawnCostRequirementScalar.Value;
+                        if (spawnCostRequirement < otherSpawnCostRequirement)
+                        {
+                            Log.Debug($"{entryRaw.Key} opting to use {otherSpawnCostRequirement} as the spawn cost requirement due to previously queued to be spawned type ({type})");
+                        }
+
+                        spawnCostRequirement = Math.Max(spawnCostRequirement, otherSpawnCostRequirement);
+                    }
 
                     if (points < (spawnCostRequirement))
                     {
@@ -185,7 +193,7 @@ namespace Nyxpiri.ULTRAKILL.CybergrindBosses
                     SpawnCooldowns[entryRaw.Key] = entryRaw.Value.SpawnCooldown.Value;
                     SpawnedLastWave.Add(entryRaw.Key);
                     points -= spawnCostToSpend;
-                    spawnCostBonus += (int)newSpawnCostBonus;
+                    spawnCostBonus += (int)spawnCostBonusToAdd;
                     spawnCostBonusSpent += (int)((int)(baseSpawnCost * entry.SpawnCostBonusScalar.Value) * entry.SpawnCostBonusSpentScalar.Value);
                     individualSpawnCostBonuses[entryRaw.Key] += entry.IndividualCostIncreasePerSpawn.Value;
                     TypesToSpawn.Enqueue(entryRaw.Key);

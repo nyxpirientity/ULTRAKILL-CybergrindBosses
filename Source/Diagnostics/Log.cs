@@ -15,22 +15,22 @@ namespace Nyxpiri.ULTRAKILL.CybergrindBosses
         {
             _logger.LogFatal(data);
         }
-        
+
         public static void Error(object data)
         {
             _logger.LogError(data);
         }
-        
+
         public static void Warning(object data)
         {
             _logger.LogWarning(data);
         }
-        
+
         public static void Message(object data)
         {
             _logger.LogMessage(data);
         }
-        
+
         public static void Info(object data)
         {
             _logger.LogInfo(data);
@@ -38,7 +38,10 @@ namespace Nyxpiri.ULTRAKILL.CybergrindBosses
 
         public static void Debug(object data)
         {
-            _logger.LogDebug(data);
+            if (Options.LogDebugInfo.Value)
+            {
+                _logger.LogDebug(data);
+            }
         }
 
         private static ManualLogSource _logger = null;

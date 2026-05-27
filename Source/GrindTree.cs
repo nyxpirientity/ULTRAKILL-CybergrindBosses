@@ -186,7 +186,6 @@ namespace Nyxpiri.ULTRAKILL.CybergrindBosses
 
             Bf.fillSpeed = Mathf.Lerp(enemyCountBasedFillspeed, waveHpBasedFillspeed, Options.BloodTreeFillSpeedBlend.Value);
 
-
             if (NumEnemiesBesidesTrees <= 3)
             {
                 if (SpawnFailsafeFilthTimestamp.TimeSince >= Mathf.Clamp(30.0f / ((float)StartTimestamp.TimeSince + 1.0f), 0.5f, 40.0f))

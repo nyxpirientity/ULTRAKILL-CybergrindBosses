@@ -47,6 +47,7 @@ namespace Nyxpiri.ULTRAKILL.CybergrindBosses
         public static ConfigEntry<int> BossWaveCooldownMin { get; private set; } = null;
         public static ConfigEntry<int> BossWaveCooldownMax { get; private set; }
         public static ConfigEntry<bool> OnlyCountBossWavesTowardsBossCooldowns { get; private set; }
+        public static ConfigEntry<int> MaxGenericBoostHelpersPerEnemy { get; private set; }
         public static ConfigEntry<bool> UseBossWaveCooldown { get; private set; }
 
         public static ConfigEntry<float> BloodTreeEnemyCountFillSpeedBase = null;
@@ -55,6 +56,8 @@ namespace Nyxpiri.ULTRAKILL.CybergrindBosses
         public static ConfigEntry<float> BloodTreeCatcherRadius = null;
         public static ConfigEntry<float> BloodTreeCatcherHeight = null;
 
+        public static ConfigEntry<bool> LogDebugInfo { get; private set; }
+
         public static ConfigEntry<bool> UseForcedFakeFall = null;
         public static ConfigEntry<int> ForcedFakeFallMinWave = null;
         public static ConfigEntry<int> ForcedFakeFallDelayMinWaves = null;
@@ -62,6 +65,9 @@ namespace Nyxpiri.ULTRAKILL.CybergrindBosses
 
 
         public static ConfigEntry<float> FleshPrisonInsigniaSizeScalar { get; private set; }
+        public static ConfigEntry<int> MinosPrimeFallOffArenaDamage { get; private set; }
+        public static ConfigEntry<int> SisyphusPrimeFallOffArenaDamage { get; private set; }
+        public static ConfigEntry<int> V2FallOffArenaDamage { get; private set; }
 
         internal static void Initialize(BaseUnityPlugin plugin)
         {
@@ -73,17 +79,19 @@ namespace Nyxpiri.ULTRAKILL.CybergrindBosses
             _configFileManager.Initialize(_config);
             _configFileManager.OnReload += Reload;
 
-            BossPickerIterations = _config.Bind("General", "BossPickerIterations", 4);
+            LogDebugInfo = _config.Bind("Logging", "LogDebugInfo", true);
             UseForcedFakeFall = _config.Bind("FakeFall", "UseForcedFakeFall", false);
             ForcedFakeFallMinWave = _config.Bind("FakeFall", "ForcedFakeFallMinWave", 30);
             ForcedFakeFallDelayMinWaves = _config.Bind("FakeFall", "ForcedFakeFallDelayMinWaves", 9);
             ForcedFakeFallDelayMaxWaves = _config.Bind("FakeFall", "ForcedFakeFallDelayMaxWaves", 12);
 
+            BossPickerIterations = _config.Bind("General", "BossPickerIterations", 6);
             PointsRatioAllocatedToBosses = _config.Bind("General", "PointsRatioAllocatedToBosses", 0.5f);
             BossWaveCooldownMin = _config.Bind("General", "GlobalBossWaveCooldownMin", 1);
             BossWaveCooldownMax = _config.Bind("General", "GlobalBossWaveCooldownMax", 1);
             UseBossWaveCooldown = _config.Bind("General", "UseGlobalBossWaveCooldown", true);
             OnlyCountBossWavesTowardsBossCooldowns = _config.Bind("General", "OnlyCountBossWavesTowardsBossCooldowns", true);
+            MaxGenericBoostHelpersPerEnemy = _config.Bind("General", "MaxGenericBoostHelpersPerEnemy", 5);
 
             AddEnemyType(enemyType: EnemyType.Geryon,
                          enabled: true,
@@ -143,7 +151,7 @@ namespace Nyxpiri.ULTRAKILL.CybergrindBosses
                          showBossBar: true,
                          healthScalar: 1.0f,
                          spawnCooldown: 30,
-                         spawnCostBonusScalar: 0.25f,
+                         spawnCostBonusScalar: 0.4f,
                          spawnCostBonusSpentScalar: 1.0f,
                          spawnCostRequirementScalar: 1.0f,
                          spawnCostSpentScalar: 0.5f,
@@ -182,9 +190,9 @@ namespace Nyxpiri.ULTRAKILL.CybergrindBosses
                          spawnCostRequirementScalar: 1.0f,
                          spawnCostSpentScalar: 1.0f,
                          individualCostIncreasePerSpawn: 25,
-                         individualPersistentSpawnCostBoost: 300,
-                         individualPersistentSpawnCostBoostMax: 300,
-                         individualPersistentSpawnCostBoostDecay: 60
+                         individualPersistentSpawnCostBoost: 140,
+                         individualPersistentSpawnCostBoostMax: 140,
+                         individualPersistentSpawnCostBoostDecay: 50
                          );
 
             AddEnemyType(enemyType: EnemyType.V2,
@@ -194,15 +202,17 @@ namespace Nyxpiri.ULTRAKILL.CybergrindBosses
                          showBossBar: true,
                          healthScalar: 1.0f,
                          spawnCooldown: 1,
-                         spawnCostBonusScalar: 1.75f,
+                         spawnCostBonusScalar: 1.2f,
                          spawnCostBonusSpentScalar: 0.5f,
                          spawnCostRequirementScalar: 1.0f,
                          spawnCostSpentScalar: 1.0f,
                          individualCostIncreasePerSpawn: 10000,
-                         individualPersistentSpawnCostBoost: 90,
-                         individualPersistentSpawnCostBoostMax: 90,
-                         individualPersistentSpawnCostBoostDecay: 35
+                         individualPersistentSpawnCostBoost: 18,
+                         individualPersistentSpawnCostBoostMax: 18,
+                         individualPersistentSpawnCostBoostDecay: 6
                          );
+
+            V2FallOffArenaDamage = _config.Bind("Boss.V2", "FallOffArenaDamage", 6);
 
             AddEnemyType(enemyType: EnemyType.V2Second,
                          enabled: true,
@@ -211,14 +221,14 @@ namespace Nyxpiri.ULTRAKILL.CybergrindBosses
                          showBossBar: true,
                          healthScalar: 1.0f,
                          spawnCooldown: 2,
-                         spawnCostBonusScalar: 1.0f,
+                         spawnCostBonusScalar: 0.75f,
                          spawnCostBonusSpentScalar: 0.5f,
                          spawnCostRequirementScalar: 1.0f,
                          spawnCostSpentScalar: 1.0f,
                          individualCostIncreasePerSpawn: 10000,
-                         individualPersistentSpawnCostBoost: 80,
-                         individualPersistentSpawnCostBoostMax: 80,
-                         individualPersistentSpawnCostBoostDecay: 35
+                         individualPersistentSpawnCostBoost: 45,
+                         individualPersistentSpawnCostBoostMax: 45,
+                         individualPersistentSpawnCostBoostDecay: 15
                          );
 
             AddEnemyType(enemyType: EnemyType.Gabriel,
@@ -228,14 +238,14 @@ namespace Nyxpiri.ULTRAKILL.CybergrindBosses
                          showBossBar: true,
                          healthScalar: 1.0f,
                          spawnCooldown: 1,
-                         spawnCostBonusScalar: 1.25f,
+                         spawnCostBonusScalar: 0.75f,
                          spawnCostBonusSpentScalar: 1.0f,
                          spawnCostRequirementScalar: 1.0f,
                          spawnCostSpentScalar: 1.0f,
                          individualCostIncreasePerSpawn: 10000,
-                         individualPersistentSpawnCostBoost: 80,
-                         individualPersistentSpawnCostBoostMax: 80,
-                         individualPersistentSpawnCostBoostDecay: 40
+                         individualPersistentSpawnCostBoost: 35,
+                         individualPersistentSpawnCostBoostMax: 35,
+                         individualPersistentSpawnCostBoostDecay: 10
                          );
 
             AddEnemyType(enemyType: EnemyType.GabrielSecond,
@@ -279,7 +289,7 @@ namespace Nyxpiri.ULTRAKILL.CybergrindBosses
                          showBossBar: true,
                          healthScalar: 1.0f,
                          spawnCooldown: 4,
-                         spawnCostBonusScalar: 1.2f,
+                         spawnCostBonusScalar: 0.6f,
                          spawnCostBonusSpentScalar: 1.0f,
                          spawnCostRequirementScalar: 1.0f,
                          spawnCostSpentScalar: 1.0f,
@@ -291,12 +301,12 @@ namespace Nyxpiri.ULTRAKILL.CybergrindBosses
 
             AddEnemyType(enemyType: EnemyType.Minotaur,
                          enabled: true,
-                         spawnCost: 90,
+                         spawnCost: 75,
                          spawnWave: 30,
                          showBossBar: true,
                          healthScalar: 1.0f,
                          spawnCooldown: 3,
-                         spawnCostBonusScalar: 0.5f,
+                         spawnCostBonusScalar: 0.35f,
                          spawnCostBonusSpentScalar: 1.0f,
                          spawnCostRequirementScalar: 1.0f,
                          spawnCostSpentScalar: 1.0f,
@@ -356,6 +366,7 @@ namespace Nyxpiri.ULTRAKILL.CybergrindBosses
                          individualPersistentSpawnCostBoostMax: 350,
                          individualPersistentSpawnCostBoostDecay: 85
                          );
+            MinosPrimeFallOffArenaDamage = _config.Bind("Boss.MinosPrime", "FallOffArenaDamage", 14);
 
             AddEnemyType(enemyType: EnemyType.SisyphusPrime,
                          enabled: true,
@@ -373,15 +384,16 @@ namespace Nyxpiri.ULTRAKILL.CybergrindBosses
                          individualPersistentSpawnCostBoostMax: 350,
                          individualPersistentSpawnCostBoostDecay: 100
                          );
+            SisyphusPrimeFallOffArenaDamage = _config.Bind("Boss.SisyphusPrime", "FallOffArenaDamage", 20);
 
             AddEnemyType(enemyType: EnemyType.Centaur,
                          enabled: true,
-                         spawnCost: 125,
+                         spawnCost: 80,
                          spawnWave: 32,
                          showBossBar: true,
                          healthScalar: 0.5f,
                          spawnCooldown: 2,
-                         spawnCostBonusScalar: 0.75f,
+                         spawnCostBonusScalar: 0.5f,
                          spawnCostBonusSpentScalar: 1.0f,
                          spawnCostRequirementScalar: 1.0f,
                          spawnCostSpentScalar: 1.0f,
@@ -391,13 +403,13 @@ namespace Nyxpiri.ULTRAKILL.CybergrindBosses
                          individualPersistentSpawnCostBoostDecay: 0
                          );
 
-            BloodTreeEnemyCountFillSpeedBase = _config.Bind("BloodTree", "EnemyCountFillSpeedBase", 1.85f);
-            BloodTreeWaveHpFillSpeedBase = _config.Bind("BloodTree", "WaveHpFillSpeedBase", 90.0f);
-            BloodTreeFillSpeedBlend = _config.Bind("BloodTree", "FillSpeedBlend", 0.65f);
-            BloodTreeCatcherRadius = _config.Bind("BloodTree", "BloodCatcherRadius", 12.0f);
-            BloodTreeCatcherHeight = _config.Bind("BloodTree", "BloodCatcherHeight", 46.0f);
+            BloodTreeEnemyCountFillSpeedBase = _config.Bind("Boss.BloodTree", "EnemyCountFillSpeedBase", 1.85f);
+            BloodTreeWaveHpFillSpeedBase = _config.Bind("Boss.BloodTree", "WaveHpFillSpeedBase", 90.0f);
+            BloodTreeFillSpeedBlend = _config.Bind("Boss.BloodTree", "FillSpeedBlend", 0.65f);
+            BloodTreeCatcherRadius = _config.Bind("Boss.BloodTree", "BloodCatcherRadius", 12.0f);
+            BloodTreeCatcherHeight = _config.Bind("Boss.BloodTree", "BloodCatcherHeight", 46.0f);
 
-            FleshPrisonInsigniaSizeScalar = _config.Bind("FleshPrisons", "InsigniaSizeScalar", 0.5f);
+            FleshPrisonInsigniaSizeScalar = _config.Bind("Boss.FleshPrisons", "InsigniaSizeScalar", 0.5f);
 
             AddEnemyAttribs(EnemyVariants.TundraAgonyType, canSpawnInFakeFall: false, fakeFallSpawnCost: 0, fakeFallSpawnCostIncreasePerSpawn: 0, fakeFallDespawnValue: 0);
             AddEnemyAttribs(EnemyVariants.BloodTree, canSpawnInFakeFall: false, fakeFallSpawnCost: 0, fakeFallSpawnCostIncreasePerSpawn: 0, fakeFallDespawnValue: 0);

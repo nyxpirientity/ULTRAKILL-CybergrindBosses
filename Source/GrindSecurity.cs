@@ -81,11 +81,15 @@ namespace Nyxpiri.ULTRAKILL.CybergrindBosses
             foreach (var enemy in enemies)
             {
                 enemy.Health *= Options.EnemyEntries[EnemyTypeDB.Instance.GetVanillaType(EnemyType.Centaur)].HealthScalar.Value;
+                enemy.Eid.BossBar(false);
+                enemy.Eid.BossBar(true);
             }
 
             transform.position += (Vector3.right * 0.0f);
 
-            Idol.gameObject.transform.position = GetComponentInChildren<ContinuousBeam>().transform.position;
+            var beam = GetComponentInChildren<ContinuousBeam>();
+            Idol.gameObject.transform.position = beam.transform.position;
+            beam.safeEnemyType = EnemyType.Idol;
         }
 
         protected void FixedUpdate()
