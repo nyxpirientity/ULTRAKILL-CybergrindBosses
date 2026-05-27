@@ -173,7 +173,14 @@ namespace Nyxpiri.ULTRAKILL.CybergrindBosses
 
             Enemy.Eid.dontCountAsKills = true;
 
-            if (!Enemy.Eid.Dead && Enemy.transform.position.y < 5.0f && remainingBoostHelpers > 0 && lastBoostHelperTimestamp.TimeSince > 0.75 && garbage == null)
+            float minHeight = 5.0f;
+
+            if (sisyprime != null || minosP != null)
+            {
+                minHeight = -110.0f;
+            }
+
+            if (!Enemy.Eid.Dead && Enemy.transform.position.y < minHeight && remainingBoostHelpers > 0 && lastBoostHelperTimestamp.TimeSince > 0.75 && garbage == null)
             {
                 var rb = Enemy.GetComponent<Rigidbody>();
                 if (rb != null && minosP == null && sisyprime == null)
