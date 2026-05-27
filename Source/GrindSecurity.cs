@@ -85,7 +85,7 @@ namespace Nyxpiri.ULTRAKILL.CybergrindBosses
             transform.position += (Vector3.right * 0.0f);
 
             var beam = GetComponentInChildren<ContinuousBeam>();
-            Idol.gameObject.transform.position = beam.transform.position;
+            Idol.gameObject.transform.position = corePos + Vector3.up * 4.0f;
             beam.safeEnemyType = EnemyType.Idol;
         }
 
