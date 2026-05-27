@@ -175,9 +175,14 @@ namespace Nyxpiri.ULTRAKILL.CybergrindBosses
 
             float minHeight = 5.0f;
 
-            if (sisyprime != null || minosP != null)
+            if (sisyprime != null)
             {
                 minHeight = -110.0f;
+            }
+
+            if (minosP != null)
+            {
+                minHeight = -20.0f;
             }
 
             if (!Enemy.Eid.Dead && Enemy.transform.position.y < minHeight && remainingBoostHelpers > 0 && lastBoostHelperTimestamp.TimeSince > 0.75 && garbage == null)
