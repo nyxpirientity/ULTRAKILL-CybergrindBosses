@@ -15,6 +15,10 @@ namespace Nyxpiri.ULTRAKILL.CybergrindBosses
 
         protected void Awake()
         {
+            foreach (var enemy in enemies)
+            {
+                enemy.Health *= Options.EnemyEntries[EnemyTypeDB.Instance.GetVanillaType(EnemyType.Centaur)].HealthScalar.Value;
+            }
         }
 
         protected void Start()
@@ -76,13 +80,6 @@ namespace Nyxpiri.ULTRAKILL.CybergrindBosses
                 eid.enemyType = EnemyType.Idol;
 
                 eid.dontCountAsKills = true;
-            }
-
-            foreach (var enemy in enemies)
-            {
-                enemy.Health *= Options.EnemyEntries[EnemyTypeDB.Instance.GetVanillaType(EnemyType.Centaur)].HealthScalar.Value;
-                enemy.Eid.BossBar(false);
-                enemy.Eid.BossBar(true);
             }
 
             transform.position += (Vector3.right * 0.0f);
