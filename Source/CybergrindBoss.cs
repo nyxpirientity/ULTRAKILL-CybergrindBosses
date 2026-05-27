@@ -148,6 +148,7 @@ namespace Nyxpiri.ULTRAKILL.CybergrindBosses
             }
         }
 
+        FieldAccess<SisyphusPrime, float> sisyPrimeOriginalHpFA = new FieldAccess<SisyphusPrime, float>("originalHp");
         FieldAccess<V2, float> V2DistancePatienceFA = new FieldAccess<V2, float>("distancePatience");
         FieldAccess<EnemyIdentifier, string> OverrideFullNameFA = new FieldAccess<EnemyIdentifier, string>("overrideFullName");
         FieldAccess<GabrielBase, bool> GabrielBaseBossVersionFA = new FieldAccess<GabrielBase, bool>("bossVersion");
@@ -222,30 +223,32 @@ namespace Nyxpiri.ULTRAKILL.CybergrindBosses
                     if (Enemy.Eid.health > Options.SisyphusPrimeFallOffArenaDamage.Value)
                     {
                         Enemy.Eid.SimpleDamage(Options.SisyphusPrimeFallOffArenaDamage.Value);
+
+                        var ouchieParticle = GameObject.Instantiate(deathParticle, transform.position, Quaternion.identity, EndlessGrid.Instance.transform);
+                        ouchieParticle.SetActive(true);
+                        sisyprime.transform.position = CyberArena.HorizontalCenter + Vector3.up * 100.0f + Vector3.forward * 20.0f;
+                        lastBoostHelperTimestamp.UpdateToNow();
                     }
                     else
                     {
                         Enemy.Eid.InstaKill();
                     }
-                    var ouchieParticle = GameObject.Instantiate(deathParticle, transform.position, Quaternion.identity, EndlessGrid.Instance.transform);
-                    ouchieParticle.SetActive(true);
-                    sisyprime.transform.position = CyberArena.HorizontalCenter + Vector3.up * 100.0f;
-                    lastBoostHelperTimestamp.UpdateToNow();
                 }
                 else if (minosP != null && lastBoostHelperTimestamp.TimeSince > 0.45 && !Enemy.Eid.dead)
                 {
                     if (Enemy.Eid.health > Options.MinosPrimeFallOffArenaDamage.Value)
                     {
                         Enemy.Eid.SimpleDamage(Options.MinosPrimeFallOffArenaDamage.Value);
+
+                        var ouchieParticle = GameObject.Instantiate(deathParticle, transform.position, Quaternion.identity, EndlessGrid.Instance.transform);
+                        ouchieParticle.SetActive(true);
+                        minosP.transform.position = CyberArena.HorizontalCenter + Vector3.up * 100.0f + Vector3.forward * 20.0f;
+                        lastBoostHelperTimestamp.UpdateToNow();
                     }
                     else
                     {
                         Enemy.Eid.InstaKill();
                     }
-                    var ouchieParticle = GameObject.Instantiate(deathParticle, transform.position, Quaternion.identity, EndlessGrid.Instance.transform);
-                    ouchieParticle.SetActive(true);
-                    minosP.transform.position = CyberArena.HorizontalCenter + Vector3.up * 100.0f;
-                    lastBoostHelperTimestamp.UpdateToNow();
                 }
             }
 
@@ -384,6 +387,11 @@ namespace Nyxpiri.ULTRAKILL.CybergrindBosses
                 _verticalShiftVelocity -= Time.fixedDeltaTime * 60.0f;
 
                 transform.position += Vector3.up * _verticalShiftVelocity;
+            }
+
+            if (sisyprime != null)
+            {
+                sisyPrimeOriginalHpFA.SetValue(sisyprime, 0.0f);
             }
 
             if (waitingToDestroyTime > 0.0f && waitingToDestroyTimestamp.TimeSince > waitingToDestroyTime)
