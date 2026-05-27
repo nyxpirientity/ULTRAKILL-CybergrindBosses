@@ -91,7 +91,7 @@ namespace Nyxpiri.ULTRAKILL.CybergrindBosses
                          spawnWave: 30,
                          showBossBar: true,
                          healthScalar: 0.5f,
-                         spawnCooldown: 5,
+                         spawnCooldown: 4,
                          spawnCostBonusScalar: 0.5f,
                          spawnCostBonusSpentScalar: 0.75f,
                          spawnCostRequirementScalar: 1.0f,
@@ -99,7 +99,7 @@ namespace Nyxpiri.ULTRAKILL.CybergrindBosses
                          individualCostIncreasePerSpawn: 10000,
                          individualPersistentSpawnCostBoost: 350,
                          individualPersistentSpawnCostBoostMax: 350,
-                         individualPersistentSpawnCostBoostDecay: 40
+                         individualPersistentSpawnCostBoostDecay: 70
                          );
 
             AddEnemyType(enemyType: EnemyType.CancerousRodent,
@@ -138,7 +138,7 @@ namespace Nyxpiri.ULTRAKILL.CybergrindBosses
 
             AddEnemyType(enemyType: EnemyType.Mandalore,
                          enabled: true,
-                         spawnCost: 450,
+                         spawnCost: 220,
                          spawnWave: 40,
                          showBossBar: true,
                          healthScalar: 1.0f,
@@ -155,17 +155,17 @@ namespace Nyxpiri.ULTRAKILL.CybergrindBosses
 
             AddEnemyType(enemyType: EnemyVariants.TundraAgonyType,
                          enabled: true,
-                         spawnCost: 20,
-                         spawnWave: 3,
+                         spawnCost: 10,
+                         spawnWave: 2,
                          showBossBar: true,
                          healthScalar: 1.0f,
-                         spawnCooldown: 2,
+                         spawnCooldown: 1,
                          spawnCostBonusScalar: 0.5f,
                          spawnCostBonusSpentScalar: 1.0f,
                          spawnCostRequirementScalar: 1.0f,
                          spawnCostSpentScalar: 1.0f,
                          individualCostIncreasePerSpawn: 10000,
-                         individualPersistentSpawnCostBoost: 30,
+                         individualPersistentSpawnCostBoost: 60,
                          individualPersistentSpawnCostBoostMax: 60,
                          individualPersistentSpawnCostBoostDecay: 15
                          );
@@ -182,60 +182,60 @@ namespace Nyxpiri.ULTRAKILL.CybergrindBosses
                          spawnCostRequirementScalar: 1.0f,
                          spawnCostSpentScalar: 1.0f,
                          individualCostIncreasePerSpawn: 25,
-                         individualPersistentSpawnCostBoost: 90,
+                         individualPersistentSpawnCostBoost: 300,
                          individualPersistentSpawnCostBoostMax: 300,
-                         individualPersistentSpawnCostBoostDecay: 30
+                         individualPersistentSpawnCostBoostDecay: 60
                          );
 
             AddEnemyType(enemyType: EnemyType.V2,
                          enabled: true,
-                         spawnCost: 35,
-                         spawnWave: 5,
+                         spawnCost: 18,
+                         spawnWave: 4,
                          showBossBar: true,
                          healthScalar: 1.0f,
-                         spawnCooldown: 3,
-                         spawnCostBonusScalar: 0.75f,
+                         spawnCooldown: 1,
+                         spawnCostBonusScalar: 1.75f,
                          spawnCostBonusSpentScalar: 0.5f,
                          spawnCostRequirementScalar: 1.0f,
                          spawnCostSpentScalar: 1.0f,
                          individualCostIncreasePerSpawn: 10000,
-                         individualPersistentSpawnCostBoost: 60,
-                         individualPersistentSpawnCostBoostMax: 220,
-                         individualPersistentSpawnCostBoostDecay: 20
+                         individualPersistentSpawnCostBoost: 90,
+                         individualPersistentSpawnCostBoostMax: 90,
+                         individualPersistentSpawnCostBoostDecay: 25
                          );
 
             AddEnemyType(enemyType: EnemyType.V2Second,
                          enabled: true,
-                         spawnCost: 50,
+                         spawnCost: 45,
                          spawnWave: 10,
                          showBossBar: true,
                          healthScalar: 1.0f,
-                         spawnCooldown: 3,
-                         spawnCostBonusScalar: 0.75f,
+                         spawnCooldown: 2,
+                         spawnCostBonusScalar: 1.0f,
                          spawnCostBonusSpentScalar: 0.5f,
                          spawnCostRequirementScalar: 1.0f,
                          spawnCostSpentScalar: 1.0f,
                          individualCostIncreasePerSpawn: 10000,
-                         individualPersistentSpawnCostBoost: 80,
-                         individualPersistentSpawnCostBoostMax: 680,
-                         individualPersistentSpawnCostBoostDecay: 60
+                         individualPersistentSpawnCostBoost: 160,
+                         individualPersistentSpawnCostBoostMax: 160,
+                         individualPersistentSpawnCostBoostDecay: 40
                          );
 
             AddEnemyType(enemyType: EnemyType.Gabriel,
                          enabled: true,
-                         spawnCost: 65,
-                         spawnWave: 10,
+                         spawnCost: 35,
+                         spawnWave: 8,
                          showBossBar: true,
                          healthScalar: 1.0f,
-                         spawnCooldown: 3,
-                         spawnCostBonusScalar: 0.3f,
+                         spawnCooldown: 1,
+                         spawnCostBonusScalar: 1.5f,
                          spawnCostBonusSpentScalar: 1.0f,
                          spawnCostRequirementScalar: 1.0f,
                          spawnCostSpentScalar: 1.0f,
                          individualCostIncreasePerSpawn: 10000,
                          individualPersistentSpawnCostBoost: 180,
                          individualPersistentSpawnCostBoostMax: 180,
-                         individualPersistentSpawnCostBoostDecay: 50
+                         individualPersistentSpawnCostBoostDecay: 40
                          );
 
             AddEnemyType(enemyType: EnemyType.GabrielSecond,
@@ -244,7 +244,7 @@ namespace Nyxpiri.ULTRAKILL.CybergrindBosses
                          spawnWave: 20,
                          showBossBar: true,
                          healthScalar: 1.0f,
-                         spawnCooldown: 3,
+                         spawnCooldown: 1,
                          spawnCostBonusScalar: 0.35f,
                          spawnCostBonusSpentScalar: 1.0f,
                          spawnCostRequirementScalar: 1.0f,
@@ -252,12 +252,12 @@ namespace Nyxpiri.ULTRAKILL.CybergrindBosses
                          individualCostIncreasePerSpawn: 10000,
                          individualPersistentSpawnCostBoost: 220,
                          individualPersistentSpawnCostBoostMax: 220,
-                         individualPersistentSpawnCostBoostDecay: 100
+                         individualPersistentSpawnCostBoostDecay: 60
                          );
 
             AddEnemyType(enemyType: EnemyType.Leviathan,
                          enabled: true,
-                         spawnCost: 70,
+                         spawnCost: 65,
                          spawnWave: 18,
                          showBossBar: true,
                          healthScalar: 1.0f,
@@ -274,25 +274,25 @@ namespace Nyxpiri.ULTRAKILL.CybergrindBosses
 
             AddEnemyType(enemyType: EnemyType.Minos,
                          enabled: true,
-                         spawnCost: 80,
+                         spawnCost: 50,
                          spawnWave: 15,
                          showBossBar: true,
                          healthScalar: 1.0f,
                          spawnCooldown: 5,
-                         spawnCostBonusScalar: 0.5f,
+                         spawnCostBonusScalar: 1.2f,
                          spawnCostBonusSpentScalar: 1.0f,
                          spawnCostRequirementScalar: 1.0f,
                          spawnCostSpentScalar: 1.0f,
                          individualCostIncreasePerSpawn: 10000,
-                         individualPersistentSpawnCostBoost: 120,
-                         individualPersistentSpawnCostBoostMax: 120,
-                         individualPersistentSpawnCostBoostDecay: 20
+                         individualPersistentSpawnCostBoost: 220,
+                         individualPersistentSpawnCostBoostMax: 220,
+                         individualPersistentSpawnCostBoostDecay: 40
                          );
 
             AddEnemyType(enemyType: EnemyType.Minotaur,
                          enabled: true,
-                         spawnCost: 120,
-                         spawnWave: 35,
+                         spawnCost: 90,
+                         spawnWave: 30,
                          showBossBar: true,
                          healthScalar: 1.0f,
                          spawnCooldown: 3,
@@ -308,11 +308,11 @@ namespace Nyxpiri.ULTRAKILL.CybergrindBosses
 
             AddEnemyType(enemyType: EnemyType.FleshPrison,
                          enabled: true,
-                         spawnCost: 190,
+                         spawnCost: 160,
                          spawnWave: 35,
                          showBossBar: true,
                          healthScalar: 0.6f,
-                         spawnCooldown: 5,
+                         spawnCooldown: 4,
                          spawnCostBonusScalar: 0.4f,
                          spawnCostBonusSpentScalar: 1.0f,
                          spawnCostRequirementScalar: 1.0f,
@@ -325,7 +325,7 @@ namespace Nyxpiri.ULTRAKILL.CybergrindBosses
 
             AddEnemyType(enemyType: EnemyType.FleshPanopticon,
                          enabled: true,
-                         spawnCost: 260,
+                         spawnCost: 185,
                          spawnWave: 45,
                          showBossBar: true,
                          healthScalar: 0.6f,
@@ -342,12 +342,12 @@ namespace Nyxpiri.ULTRAKILL.CybergrindBosses
 
             AddEnemyType(enemyType: EnemyType.MinosPrime,
                          enabled: true,
-                         spawnCost: 250,
+                         spawnCost: 165,
                          spawnWave: 35,
                          showBossBar: true,
                          healthScalar: 1.0f,
-                         spawnCooldown: 3,
-                         spawnCostBonusScalar: 0.75f,
+                         spawnCooldown: 2,
+                         spawnCostBonusScalar: 0.5f,
                          spawnCostBonusSpentScalar: 1.0f,
                          spawnCostRequirementScalar: 1.0f,
                          spawnCostSpentScalar: 1.0f,
@@ -359,11 +359,11 @@ namespace Nyxpiri.ULTRAKILL.CybergrindBosses
 
             AddEnemyType(enemyType: EnemyType.SisyphusPrime,
                          enabled: true,
-                         spawnCost: 215,
+                         spawnCost: 195,
                          spawnWave: 40,
                          showBossBar: true,
                          healthScalar: 1.0f,
-                         spawnCooldown: 3,
+                         spawnCooldown: 2,
                          spawnCostBonusScalar: 0.5f,
                          spawnCostBonusSpentScalar: 1.0f,
                          spawnCostRequirementScalar: 1.0f,
@@ -374,8 +374,8 @@ namespace Nyxpiri.ULTRAKILL.CybergrindBosses
                          individualPersistentSpawnCostBoostDecay: 100
                          );
 
-            BloodTreeEnemyCountFillSpeedBase = _config.Bind("BloodTree", "EnemyCountFillSpeedBase", 1.75f);
-            BloodTreeWaveHpFillSpeedBase = _config.Bind("BloodTree", "WaveHpFillSpeedBase", 85.0f);
+            BloodTreeEnemyCountFillSpeedBase = _config.Bind("BloodTree", "EnemyCountFillSpeedBase", 1.85f);
+            BloodTreeWaveHpFillSpeedBase = _config.Bind("BloodTree", "WaveHpFillSpeedBase", 90.0f);
             BloodTreeFillSpeedBlend = _config.Bind("BloodTree", "FillSpeedBlend", 0.65f);
             BloodTreeCatcherRadius = _config.Bind("BloodTree", "BloodCatcherRadius", 12.0f);
             BloodTreeCatcherHeight = _config.Bind("BloodTree", "BloodCatcherHeight", 46.0f);

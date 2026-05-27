@@ -62,16 +62,18 @@ namespace Nyxpiri.ULTRAKILL.CybergrindBosses
 
             var enemyEntries = Options.EnemyEntries.ToList();
             HashSet<AEnemyType> denyList = new HashSet<AEnemyType>();
-            enemyEntries.Shuffle();
 
             for (int i = 0; i < Options.BossPickerIterations.Value; i++)
             {
+                bool needToChoose = i >= Options.BossPickerIterations.Value / 2.0f;
+                enemyEntries.Shuffle();
                 foreach (var entryRaw in enemyEntries)
                 {
                     var entry = entryRaw.Value;
                     Log.Debug($"{entryRaw.Key} being TESTED to spawn");
 
                     SpawnCostBoosts.TryAdd(entryRaw.Key, 0);
+                    SpawnCooldowns.TryAdd(entryRaw.Key, 0);
 
                     if (!entry.Enabled.Value)
                     {
@@ -79,9 +81,9 @@ namespace Nyxpiri.ULTRAKILL.CybergrindBosses
                         continue;
                     }
 
-                    if (SpawnCooldowns.GetValueOrDefault(entryRaw.Key, 0) > 0)
+                    if (SpawnCooldowns[entryRaw.Key] > 0)
                     {
-                        Log.Debug($"{entryRaw.Key} DENIED on the basis of wave cooldown {SpawnCooldowns.GetValueOrDefault(entryRaw.Key, 0)}");
+                        Log.Debug($"{entryRaw.Key} DENIED on the basis of wave cooldown {SpawnCooldowns[entryRaw.Key]}");
                         continue;
                     }
 
@@ -89,6 +91,17 @@ namespace Nyxpiri.ULTRAKILL.CybergrindBosses
                     {
                         Log.Debug($"{entryRaw.Key} DENIED on the basis of wave {wave} being less than {entry.SpawnWave.Value}");
                         continue;
+                    }
+
+                    if (!needToChoose)
+                    {
+                        float chooseOdds = Mathf.Clamp(NyxMath.InverseNormalizeToRange(SpawnCooldowns[entryRaw.Key], -10, 0), 0.2f, 1.0f);
+
+                        if (UnityEngine.Random.Range(0.0f, 1.0f) > chooseOdds)
+                        {
+                            Log.Debug($"{entryRaw.Key} DENIED on the basis of choose odds {chooseOdds}, 'cooldown' {SpawnCooldowns[entryRaw.Key]}");
+                            continue;
+                        }
                     }
 
                     individualSpawnCostBonuses.TryAdd(entryRaw.Key, 0);
@@ -106,13 +119,25 @@ namespace Nyxpiri.ULTRAKILL.CybergrindBosses
                     if (UnityEngine.Random.Range(0.0f, 1.0f) < boostPercentage || denyList.Contains(entryRaw.Key))
                     {
                         Log.Debug($"{entryRaw.Key} DENIED on the basis of {boostPercentage} rng roll not working out for it");
-                        denyList.Add(entryRaw.Key);
+                        //denyList.Add(entryRaw.Key);
                         continue;
                     }
 
-                    if (points < (spawnCost * entry.SpawnCostRequirementScalar.Value))
+                    float newSpawnCostBonus = (int)(baseSpawnCost * entry.SpawnCostBonusScalar.Value);
+                    float spawnCostRequirement = spawnCost;
+
+                    /*int typeIndex = 0;
+                    foreach (var type in TypesToSpawn)
                     {
-                        Log.Debug($"{entryRaw.Key} DENIED on the basis of {points} being less than {spawnCost * entry.SpawnCostRequirementScalar.Value}");
+                        typeIndex += 1;
+                        spawnCostRequirement += newSpawnCostBonus * Options.EnemyEntries[type].SpawnCostRequirementScalar.Value;
+                    }*/
+
+                    spawnCostRequirement = spawnCostRequirement * entry.SpawnCostRequirementScalar.Value;
+
+                    if (points < (spawnCostRequirement))
+                    {
+                        Log.Debug($"{entryRaw.Key} DENIED on the basis of {points} being less than {spawnCostRequirement}");
                         continue;
                     }
 
@@ -160,7 +185,7 @@ namespace Nyxpiri.ULTRAKILL.CybergrindBosses
                     SpawnCooldowns[entryRaw.Key] = entryRaw.Value.SpawnCooldown.Value;
                     SpawnedLastWave.Add(entryRaw.Key);
                     points -= spawnCostToSpend;
-                    spawnCostBonus += (int)(baseSpawnCost * entry.SpawnCostBonusScalar.Value);
+                    spawnCostBonus += (int)newSpawnCostBonus;
                     spawnCostBonusSpent += (int)((int)(baseSpawnCost * entry.SpawnCostBonusScalar.Value) * entry.SpawnCostBonusSpentScalar.Value);
                     individualSpawnCostBonuses[entryRaw.Key] += entry.IndividualCostIncreasePerSpawn.Value;
                     TypesToSpawn.Enqueue(entryRaw.Key);
@@ -206,13 +231,18 @@ namespace Nyxpiri.ULTRAKILL.CybergrindBosses
 
             foreach (var key in SpawnCooldowns.Keys)
             {
+                if (SpawnedLastWave.Contains(key))
+                {
+                    continue;
+                }
+
                 newSpawnCooldowns[key] -= 1;
             }
 
             Dictionary<AEnemyType, int> newSpawnCostBoosts = new Dictionary<AEnemyType, int>(SpawnCostBoosts);
             foreach (var key in SpawnCostBoosts.Keys)
             {
-                if (SpawnedLastWave.Contains(key))
+                if (SpawnedLastWave.Contains(key) || SpawnCooldowns.GetValueOrDefault(key, 0) > 0)
                 {
                     continue;
                 }
