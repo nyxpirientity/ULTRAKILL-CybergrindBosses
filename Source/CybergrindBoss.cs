@@ -216,7 +216,14 @@ namespace Nyxpiri.ULTRAKILL.CybergrindBosses
 
                 if (sisyprime != null && lastBoostHelperTimestamp.TimeSince > 0.45 && !Enemy.Eid.dead)
                 {
-                    Enemy.Eid.SimpleDamage(10.0f);
+                    if (Enemy.Eid.health > 20.0f)
+                    {
+                        Enemy.Eid.SimpleDamage(20.0f);
+                    }
+                    else
+                    {
+                        Enemy.Eid.InstaKill();
+                    }
                     var ouchieParticle = GameObject.Instantiate(deathParticle, transform.position, Quaternion.identity, EndlessGrid.Instance.transform);
                     ouchieParticle.SetActive(true);
                     sisyprime.transform.position = CyberArena.HorizontalCenter + Vector3.up * 100.0f;
@@ -224,7 +231,14 @@ namespace Nyxpiri.ULTRAKILL.CybergrindBosses
                 }
                 else if (minosP != null && lastBoostHelperTimestamp.TimeSince > 0.45 && !Enemy.Eid.dead)
                 {
-                    Enemy.Eid.SimpleDamage(7.0f);
+                    if (Enemy.Eid.health > 14.0f)
+                    {
+                        Enemy.Eid.SimpleDamage(14.0f);
+                    }
+                    else
+                    {
+                        Enemy.Eid.InstaKill();
+                    }
                     var ouchieParticle = GameObject.Instantiate(deathParticle, transform.position, Quaternion.identity, EndlessGrid.Instance.transform);
                     ouchieParticle.SetActive(true);
                     minosP.transform.position = CyberArena.HorizontalCenter + Vector3.up * 100.0f;

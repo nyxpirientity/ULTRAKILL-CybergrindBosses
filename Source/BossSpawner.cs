@@ -297,6 +297,9 @@ namespace Nyxpiri.ULTRAKILL.CybergrindBosses
                         prefab = NyxLib.EnemyPrefabDatabase.GetPrefab(EnemyType.Mandalore);
                         spawnPos = CyberArena.RandomTwoByTwo.GetValueOrDefault(Vector3.zero);
                         break;
+                    case EnemyType.Centaur:
+                        spawnPos = CyberArena.RandomThreeByThree.GetValueOrDefault(CyberArena.RandomTwoByTwo.Value);
+                        break;
                     default:
                         break;
                 }
@@ -396,9 +399,16 @@ namespace Nyxpiri.ULTRAKILL.CybergrindBosses
                     }
                     else if (typeToSpawn == EnemyVariants.BloodTree)
                     {
-                        var bf = GameObject.Instantiate(EnemyVariants.BloodTreePrefab, CyberArena.RandomOneByOne.GetValueOrDefault(CyberArena.Instance.FloorCenter), Quaternion.Euler(-90.0f, 0.0f, 0.0f), EndlessGrid.Instance.transform);
+                        var bf = GameObject.Instantiate(EnemyVariants.BloodTreePrefab, CyberArena.RandomTwoByTwo.GetValueOrDefault(CyberArena.Instance.FloorCenter), Quaternion.Euler(-90.0f, 0.0f, 0.0f), EndlessGrid.Instance.transform);
                         bf.gameObject.AddComponent<GrindTree>();
                         bf.gameObject.SetActive(true);
+                    }
+                    else if (typeToSpawn.VanillaEnumValue == EnemyType.Centaur)
+                    {
+                        prefab = EnemyVariants.CentaurSecurityPrefab;
+                        var secSystemGo = GameObject.Instantiate(EnemyVariants.CentaurSecurityPrefab, CyberArena.RandomThreeByThree.GetValueOrDefault((CyberArena.Instance.FloorCenter)), Quaternion.Euler(0.0f, 0.0f, 0.0f), EndlessGrid.Instance.transform);
+                        secSystemGo.AddComponent<GrindSecurity>();
+                        secSystemGo.SetActive(true);
                     }
                     else
                     {

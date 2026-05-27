@@ -13,6 +13,7 @@ namespace Nyxpiri.ULTRAKILL.CybergrindBosses
         public static AEnemyType BloodTree = new VanillaEnemyType("Blood Tree", "BloodTree");
         public static LeviathanController LeviathanPrefab = null;
         public static GameObject CorpseOfKingMinosPrefab = null;
+        public static GameObject CentaurSecurityPrefab = null;
         public static BloodFiller BloodTreePrefab = null;
         private static GameObject prefabHolder = null;
         public static Geryon GeryonPrefab = null;
@@ -32,6 +33,7 @@ namespace Nyxpiri.ULTRAKILL.CybergrindBosses
             LevelQuickLoader.AddQuickLoadLevel("Level 1-3");
             LevelQuickLoader.AddQuickLoadLevel("Level 5-4");
             LevelQuickLoader.AddQuickLoadLevel("Level 7-3");
+            LevelQuickLoader.AddQuickLoadLevel("Level 7-4");
             LevelQuickLoader.AddQuickLoadLevel("Level 8-4");
 
             NyxLib.Assets.AddAssetPicker<MinosBoss>((minos) =>
@@ -43,6 +45,27 @@ namespace Nyxpiri.ULTRAKILL.CybergrindBosses
                 CorpseOfKingMinosPrefab = GameObject.Instantiate(minos.gameObject, prefabHolder.transform);
                 var pminos = CorpseOfKingMinosPrefab.GetComponent<MinosBoss>();
                 pminos.parryChallenge = false;
+
+                return true;
+            });
+
+            NyxLib.Assets.AddAssetPicker<CombinedBossBar>((bb) =>
+            {
+                prefabHolder ??= new GameObject();
+                GameObject.DontDestroyOnLoad(prefabHolder);
+                prefabHolder.SetActive(false);
+
+                if (bb.gameObject.name != "SecuritySystem")
+                {
+                    return false;
+                }
+
+                if (SceneHelper.CurrentScene != "Level 7-4")
+                {
+                    return false;
+                }
+
+                CentaurSecurityPrefab = GameObject.Instantiate(bb.gameObject, prefabHolder.transform);
 
                 return true;
             });
