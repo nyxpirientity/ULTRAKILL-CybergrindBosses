@@ -149,6 +149,8 @@ namespace Nyxpiri.ULTRAKILL.CybergrindBosses
         }
 
         FieldAccess<SisyphusPrime, float> sisyPrimeOriginalHpFA = new FieldAccess<SisyphusPrime, float>("originalHp");
+        FieldAccess<MinosPrime, bool> minosPrimeinActionFA = new FieldAccess<MinosPrime, bool>("inAction");
+        FieldAccess<MinosPrime, bool> minosPrimegravityInActionFA = new FieldAccess<MinosPrime, bool>("gravityInAction");
         FieldAccess<V2, float> V2DistancePatienceFA = new FieldAccess<V2, float>("distancePatience");
         FieldAccess<EnemyIdentifier, string> OverrideFullNameFA = new FieldAccess<EnemyIdentifier, string>("overrideFullName");
         FieldAccess<GabrielBase, bool> GabrielBaseBossVersionFA = new FieldAccess<GabrielBase, bool>("bossVersion");
@@ -182,7 +184,14 @@ namespace Nyxpiri.ULTRAKILL.CybergrindBosses
 
             if (minosP != null)
             {
-                minHeight = -20.0f;
+                if (!minosPrimeinActionFA.GetValue(minosP) && minosPrimegravityInActionFA.GetValue(minosP))
+                {
+                    minHeight = -20.0f;
+                }
+                else
+                {
+                    minHeight = -110;
+                }
             }
 
             if (!Enemy.Eid.Dead && Enemy.transform.position.y < minHeight && remainingBoostHelpers > 0 && lastBoostHelperTimestamp.TimeSince > 0.75 && garbage == null)
