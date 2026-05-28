@@ -179,19 +179,12 @@ namespace Nyxpiri.ULTRAKILL.CybergrindBosses
 
             if (sisyprime != null)
             {
-                minHeight = -110.0f;
+                minHeight = Mathf.Clamp(NewMovement.Instance.Position.y - 5.0f, -110.0f, minHeight);
             }
 
             if (minosP != null)
             {
-                if (!minosPrimeinActionFA.GetValue(minosP) && minosPrimegravityInActionFA.GetValue(minosP))
-                {
-                    minHeight = -20.0f;
-                }
-                else
-                {
-                    minHeight = -110;
-                }
+                minHeight = Mathf.Clamp(NewMovement.Instance.Position.y - 5.0f, -110.0f, minHeight);
             }
 
             if (!Enemy.Eid.Dead && Enemy.transform.position.y < minHeight && remainingBoostHelpers > 0 && lastBoostHelperTimestamp.TimeSince > 0.75 && garbage == null)
