@@ -115,9 +115,32 @@ namespace Nyxpiri.ULTRAKILL.CybergrindBosses
             Defeated();
         }
 
+        private bool _selfDestructing = false;
         private void Defeated()
         {
+            if (_selfDestructing)
+            {
+                return;
+            }
+
+            _selfDestructing = true;
+
+            var explosionGo = GameObject.Instantiate(NyxLib.Assets.ExplosionPrefab, transform.parent);
+            explosionGo.transform.position = transform.position + Vector3.down;
+            var explosion = explosionGo.GetComponentInChildren<Explosion>();
+            explosion.ignite = false;
+            explosion.harmless = true;
+            explosion.damage = 0;
+            explosion.pushForceMultiplier = 0.0f;
+            explosion.friendlyFire = true;
+            explosionGo.SetActive(true);
+
             EndlessGrid.Instance.GetComponent<ActivateNextWave>().AddDeadEnemy();
+            Invoke("SelfDestruct", 0.25f);
+        }
+
+        private void SelfDestruct()
+        {
             Destroy(gameObject);
         }
     }

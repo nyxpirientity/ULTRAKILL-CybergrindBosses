@@ -190,7 +190,6 @@ namespace Nyxpiri.ULTRAKILL.CybergrindBosses
                         continue;
                     }
 
-                    SpawnCooldowns[entryRaw.Key] = entryRaw.Value.SpawnCooldown.Value;
                     SpawnedLastWave.Add(entryRaw.Key);
                     points -= spawnCostToSpend;
                     spawnCostBonus += (int)spawnCostBonusToAdd;
@@ -222,6 +221,7 @@ namespace Nyxpiri.ULTRAKILL.CybergrindBosses
             {
                 SpawnCostBoosts[entry] += Options.EnemyEntries[entry].IndividualPersistentSpawnCostBoost.Value;
                 SpawnCostBoosts[entry] = Math.Clamp(SpawnCostBoosts[entry], 0, Options.EnemyEntries[entry].IndividualPersistentSpawnCostBoostMax.Value);
+                SpawnCooldowns[entry] = Options.EnemyEntries[entry].SpawnCooldown.Value;
             }
 
             pointsFi.SetValue(endlessGrid, allPoints - (maxPoints - points));
