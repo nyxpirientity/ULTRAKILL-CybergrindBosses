@@ -28,4 +28,4 @@ The bosses in the mod currently are:
 ## configurability
 As stated before, the mod is meant to be highly configurable, as I balanced it with myself as the sole play-tester and designed any mechanics I needed to, also with myself as the sole play-tester. Most options should have a description, but tbh I may have forgotton some that need one. Options are configured on a per-boss basis, and some non-bosses have *attributes* which are currently used just for configuring how enemies are handled when a fake fall begins. Options function through BepInEx config files, so whether they show in menus depend on if the mod you're using to configure mods through in-game menus automatically supports mods using BepInEx config files. It also automatically reloads the config from the file every time the window regains focus, so you can just use a text editor. (make sure you save!)
 
-## credit to (??? idk if they want credit yet ???) for the mod icon
+## credit to Syntheta for the mod icon + the mod suggestion! 
