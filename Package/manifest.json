@@ -1,0 +1,10 @@
+{
+    "name": "CybergrindBosses",
+    "version_number": "0.2.0",
+    "website_url": "https://github.com/nyxpirientity/ULTRAKILL-CybergrindBosses",
+    "description": "Adds a cheat to the game which when enabled causes bosses to spawn in cybergrind, with many ways of being configured.",
+    "dependencies": [
+        "Nyxpiri-NyxLib-0.2.0",
+        "BepInEx-BepInExPack-5.4.2305"
+    ]
+}

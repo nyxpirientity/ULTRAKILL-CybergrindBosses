@@ -1,3 +1,7 @@
+# Important!
+For this plugin/mod to work, you'll need to ensure your BepInEx is configured to have *`HideManagerGameObject`* set to *`true`*, or else the game will destroy the plugin!
+
+# about
 Cybergrind Bosses is a mod which as the name suggests adds as cheat which when enabled, adds (currently) most of the bosses from ULTRAKILL to The Cyber Grind. It features *a lot* of options for configuring the balance of when bosses spawn, the amount of points they'll cost for the wave, the frequency they spawn, etc. Or you can just turn off each individual boss if you please.
 
 ## design note
