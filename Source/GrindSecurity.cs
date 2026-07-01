@@ -125,15 +125,13 @@ namespace Nyxpiri.ULTRAKILL.CybergrindBosses
 
             _selfDestructing = true;
 
-            var explosionGo = GameObject.Instantiate(NyxLib.Assets.ExplosionPrefab, transform.parent);
-            explosionGo.transform.position = transform.position + Vector3.down;
-            var explosion = explosionGo.GetComponentInChildren<Explosion>();
-            explosion.ignite = false;
-            explosion.harmless = true;
-            explosion.damage = 0;
-            explosion.pushForceMultiplier = 0.0f;
-            explosion.friendlyFire = true;
-            explosionGo.SetActive(true);
+            var explosion = NyxLib.Assets.Explosions.Normal.Instantiate(transform.parent);
+            explosion.transform.position = transform.position + Vector3.down;
+            explosion.MakeHarmless();
+            explosion.ScaleDamage(0.0f);
+            explosion.ScalePushForce(0.0f);
+            explosion.FriendlyFire = true;
+            explosion.gameObject.SetActive(true);
 
             EndlessGrid.Instance.GetComponent<ActivateNextWave>().AddDeadEnemy();
             Invoke("SelfDestruct", 0.25f);

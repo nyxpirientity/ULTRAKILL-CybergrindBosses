@@ -6,7 +6,6 @@ using HarmonyLib;
 using System.Linq;
 using System.Collections.Generic;
 using UnityEngine.SceneManagement;
-using Nyxpiri.ULTRAKILL.NyxLib.EnemyTypes;
 using Nyxpiri.Unity.Collections;
 
 namespace Nyxpiri.ULTRAKILL.CybergrindBosses
@@ -42,7 +41,7 @@ namespace Nyxpiri.ULTRAKILL.CybergrindBosses
             int points = maxPoints;
             int spawnCostBonus = 0;
             int spawnCostBonusSpent = 0;
-            Dictionary<NyxLib.AEnemyType, int> individualSpawnCostBonuses = new Dictionary<NyxLib.AEnemyType, int>();
+            Dictionary<NyxLib.EnemyTypeData, int> individualSpawnCostBonuses = new Dictionary<NyxLib.EnemyTypeData, int>();
 
             Log.Debug($"---------- deciding bosses to spawn with {points} points (allPoints = {allPoints}) -------------");
 
@@ -61,7 +60,7 @@ namespace Nyxpiri.ULTRAKILL.CybergrindBosses
             }
 
             var enemyEntries = Options.EnemyEntries.ToList();
-            HashSet<AEnemyType> denyList = new HashSet<AEnemyType>();
+            HashSet<EnemyTypeData> denyList = new HashSet<EnemyTypeData>();
 
             for (int i = 0; i < Options.BossPickerIterations.Value; i++)
             {
@@ -235,7 +234,7 @@ namespace Nyxpiri.ULTRAKILL.CybergrindBosses
 
         internal void UpdateBossCooldowns()
         {
-            Dictionary<AEnemyType, int> newSpawnCooldowns = new Dictionary<AEnemyType, int>(SpawnCooldowns);
+            Dictionary<EnemyTypeData, int> newSpawnCooldowns = new Dictionary<EnemyTypeData, int>(SpawnCooldowns);
 
             foreach (var key in SpawnCooldowns.Keys)
             {
@@ -247,7 +246,7 @@ namespace Nyxpiri.ULTRAKILL.CybergrindBosses
                 newSpawnCooldowns[key] -= 1;
             }
 
-            Dictionary<AEnemyType, int> newSpawnCostBoosts = new Dictionary<AEnemyType, int>(SpawnCostBoosts);
+            Dictionary<EnemyTypeData, int> newSpawnCostBoosts = new Dictionary<EnemyTypeData, int>(SpawnCostBoosts);
             foreach (var key in SpawnCostBoosts.Keys)
             {
                 if (SpawnedLastWave.Contains(key) || SpawnCooldowns.GetValueOrDefault(key, 0) > 0)
@@ -262,13 +261,13 @@ namespace Nyxpiri.ULTRAKILL.CybergrindBosses
             SpawnCostBoosts = newSpawnCostBoosts;
         }
 
-        public Queue<NyxLib.AEnemyType> TypesToSpawn { get; private set; } = new Queue<NyxLib.AEnemyType>();
-        public HashSet<NyxLib.AEnemyType> SpawnedLastWave { get; private set; } = new HashSet<NyxLib.AEnemyType>();
+        public Queue<NyxLib.EnemyTypeData> TypesToSpawn { get; private set; } = new Queue<NyxLib.EnemyTypeData>();
+        public HashSet<NyxLib.EnemyTypeData> SpawnedLastWave { get; private set; } = new HashSet<NyxLib.EnemyTypeData>();
         public bool ShouldFakeFall = false;
         internal static int EnemyAmountToAdd { get; set; } = 0;
         int _wavesSinceFakeFall = 0;
         int _currentFakeFallDelay = -10;
-        private Dictionary<NyxLib.AEnemyType, int> SpawnCooldowns = new Dictionary<NyxLib.AEnemyType, int>();
-        private Dictionary<NyxLib.AEnemyType, int> SpawnCostBoosts = new Dictionary<NyxLib.AEnemyType, int>();
+        private Dictionary<NyxLib.EnemyTypeData, int> SpawnCooldowns = new Dictionary<NyxLib.EnemyTypeData, int>();
+        private Dictionary<NyxLib.EnemyTypeData, int> SpawnCostBoosts = new Dictionary<NyxLib.EnemyTypeData, int>();
     }
 }

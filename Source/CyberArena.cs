@@ -6,7 +6,6 @@ using HarmonyLib;
 using System.Linq;
 using System.Collections.Generic;
 using UnityEngine.SceneManagement;
-using Nyxpiri.ULTRAKILL.NyxLib.EnemyTypes;
 
 namespace Nyxpiri.ULTRAKILL.CybergrindBosses
 {

@@ -207,15 +207,13 @@ namespace Nyxpiri.ULTRAKILL.CybergrindBosses
                     {
                         var enemy = v2.GetComponent<EnemyComponents>();
                         enemy.Eid.ApplyDamage(Vector3.zero, enemy.Eid.transform.position, Options.V2FallOffArenaDamage.Value, 1.0f, null, true);
-                        var explosionGo = GameObject.Instantiate(NyxLib.Assets.ExplosionPrefab, transform.parent);
-                        explosionGo.transform.position = transform.position + Vector3.down;
-                        var explosion = explosionGo.GetComponentInChildren<Explosion>();
-                        explosion.ignite = false;
-                        explosion.harmless = true;
-                        explosion.damage = 0;
-                        explosion.pushForceMultiplier = 0.0f;
-                        explosion.friendlyFire = true;
-                        explosionGo.SetActive(true);
+                        var explosion = NyxLib.Assets.Explosions.Normal.Instantiate(transform.parent);
+                        explosion.transform.position = transform.position + Vector3.down;
+                        explosion.MakeHarmless();
+                        explosion.ScaleDamage(0);
+                        explosion.ScalePushForce(0.0f);
+                        explosion.FriendlyFire = true;
+                        explosion.gameObject.SetActive(true);
                     }
                     else if (IsTundraAgony && Symbiote != null && !Symbiote.Eid.Dead)
                     {
@@ -462,14 +460,15 @@ namespace Nyxpiri.ULTRAKILL.CybergrindBosses
 
         private void BigHarmlessExplosionAt(Vector3 position)
         {
-            var explosion = GameObject.Instantiate(NyxLib.Assets.ExplosionPrefab, position, Quaternion.identity);
-            var eadd = explosion.GetComponent<ExplosionAdditions>();
-            eadd.Harmless = true;
-            eadd.ExplosionScale = 20.0f;
-            eadd.ExplosionSpeedScale = 10.0f;
-            eadd.ExplosionPushScale = 0.0f;
-            explosion.SetActive(true);
-            foreach (var audio in eadd.Audios)
+            var explosion = NyxLib.Assets.Explosions.Normal.Instantiate(position, Quaternion.identity, null);
+
+            explosion.MakeHarmless();
+            explosion.ScaleSize(20.0f);
+            explosion.ScaleSpeed(10.0f);
+            explosion.ScalePushForce(0.0f);
+            explosion.gameObject.SetActive(true);
+
+            foreach (var audio in explosion.GetComponentsInChildren<AudioSource>())
             {
                 audio.maxDistance *= 100.0f;
                 audio.volume *= 1.2f;
@@ -501,15 +500,14 @@ namespace Nyxpiri.ULTRAKILL.CybergrindBosses
 
                 lev.stat.health *= 0.5f;
 
-                var explosion = GameObject.Instantiate(NyxLib.Assets.ExplosionPrefab, CyberArena.HorizontalCenter, Quaternion.identity);
-                var eadd = explosion.GetComponent<ExplosionAdditions>();
-                eadd.Harmless = true;
-                eadd.ExplosionScale = 20.0f;
-                eadd.ExplosionSpeedScale = 10.0f;
-                eadd.ExplosionPushScale = 0.0f;
-                explosion.SetActive(true);
+                var explosion = NyxLib.Assets.Explosions.Normal.Instantiate(CyberArena.HorizontalCenter, Quaternion.identity, null);
+                explosion.MakeHarmless();
+                explosion.ScaleSize(20.0f);
+                explosion.ScaleSpeed(10.0f);
+                explosion.ScalePushForce(0.0f);
+                explosion.gameObject.SetActive(true);
 
-                foreach (var audio in eadd.Audios)
+                foreach (var audio in explosion.GetComponentsInChildren<AudioSource>())
                 {
                     audio.maxDistance *= 100.0f;
                     audio.volume *= 1.2f;

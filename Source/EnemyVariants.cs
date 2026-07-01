@@ -1,7 +1,6 @@
 using System;
 using HarmonyLib;
 using Nyxpiri.ULTRAKILL.NyxLib;
-using Nyxpiri.ULTRAKILL.NyxLib.EnemyTypes;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
@@ -9,8 +8,8 @@ namespace Nyxpiri.ULTRAKILL.CybergrindBosses
 {
     public static class EnemyVariants
     {
-        public static AEnemyType TundraAgonyType = new VanillaEnemyType("SWORDSMACHINE \"AGONY\" AND \"TUNDRA\"", "TundraAndAgony", EnemyType.Swordsmachine);
-        public static AEnemyType BloodTree = new VanillaEnemyType("Blood Tree", "BloodTree");
+        public static EnemyTypeData TundraAgonyType = new EnemyTypeData("SWORDSMACHINE \"AGONY\" AND \"TUNDRA\"", "TundraAndAgony", "cybergrind-bosses.tundra-and-agony", EnemyType.Swordsmachine);
+        public static EnemyTypeData BloodTree = new EnemyTypeData("Blood Tree", "BloodTree", "cybergrind-bosses.blood-tree");
         public static LeviathanController LeviathanPrefab = null;
         public static GameObject CorpseOfKingMinosPrefab = null;
         public static GameObject CentaurSecurityPrefab = null;
@@ -36,7 +35,7 @@ namespace Nyxpiri.ULTRAKILL.CybergrindBosses
             LevelQuickLoader.AddQuickLoadLevel("Level 7-4");
             LevelQuickLoader.AddQuickLoadLevel("Level 8-4");
 
-            NyxLib.Assets.AddAssetPicker<MinosBoss>((minos) =>
+            NyxLib.Assets.AssetPickingManager.AddAssetPicker<MinosBoss>((minos) =>
             {
                 prefabHolder ??= new GameObject();
                 GameObject.DontDestroyOnLoad(prefabHolder);
@@ -49,7 +48,7 @@ namespace Nyxpiri.ULTRAKILL.CybergrindBosses
                 return true;
             });
 
-            NyxLib.Assets.AddAssetPicker<CombinedBossBar>((bb) =>
+            NyxLib.Assets.AssetPickingManager.AddAssetPicker<CombinedBossBar>((bb) =>
             {
                 prefabHolder ??= new GameObject();
                 GameObject.DontDestroyOnLoad(prefabHolder);
@@ -70,7 +69,7 @@ namespace Nyxpiri.ULTRAKILL.CybergrindBosses
                 return true;
             });
 
-            NyxLib.Assets.AddAssetPicker<Geryon>((geryon) =>
+            NyxLib.Assets.AssetPickingManager.AddAssetPicker<Geryon>((geryon) =>
             {
                 prefabHolder ??= new GameObject();
                 GameObject.DontDestroyOnLoad(prefabHolder);
@@ -81,7 +80,7 @@ namespace Nyxpiri.ULTRAKILL.CybergrindBosses
                 return true;
             });
 
-            NyxLib.Assets.AddAssetPicker<FakeFallZone>((ffz) =>
+            NyxLib.Assets.AssetPickingManager.AddAssetPicker<FakeFallZone>((ffz) =>
             {
                 prefabHolder ??= new GameObject();
                 GameObject.DontDestroyOnLoad(prefabHolder);
@@ -92,7 +91,7 @@ namespace Nyxpiri.ULTRAKILL.CybergrindBosses
                 return true;
             });
 
-            NyxLib.Assets.AddAssetPicker<BloodFiller>((bf) =>
+            NyxLib.Assets.AssetPickingManager.AddAssetPicker<BloodFiller>((bf) =>
             {
                 prefabHolder ??= new GameObject();
                 GameObject.DontDestroyOnLoad(prefabHolder);
@@ -110,7 +109,7 @@ namespace Nyxpiri.ULTRAKILL.CybergrindBosses
                 return true;
             });
 
-            NyxLib.Assets.AddAssetPicker<LeviathanController>((leviathan) =>
+            NyxLib.Assets.AssetPickingManager.AddAssetPicker<LeviathanController>((leviathan) =>
             {
                 prefabHolder ??= new GameObject();
                 GameObject.DontDestroyOnLoad(prefabHolder);
@@ -123,7 +122,7 @@ namespace Nyxpiri.ULTRAKILL.CybergrindBosses
                 return true;
             });
 
-            NyxLib.Assets.AddAssetPicker<SwordsMachine>((sm) =>
+            NyxLib.Assets.AssetPickingManager.AddAssetPicker<SwordsMachine>((sm) =>
             {
                 var enemy = sm.GetComponent<Enemy>();
 

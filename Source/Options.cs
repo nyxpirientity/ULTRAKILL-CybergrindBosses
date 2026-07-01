@@ -5,7 +5,6 @@ using System.Linq;
 using BepInEx;
 using BepInEx.Configuration;
 using Nyxpiri.ULTRAKILL.NyxLib;
-using Nyxpiri.ULTRAKILL.NyxLib.EnemyTypes;
 
 namespace Nyxpiri.ULTRAKILL.CybergrindBosses
 {
@@ -38,8 +37,8 @@ namespace Nyxpiri.ULTRAKILL.CybergrindBosses
             public ConfigEntry<int> FakeFallDespawnValue = null;
         }
 
-        public static Dictionary<NyxLib.AEnemyType, EnemyEntry> EnemyEntries = new Dictionary<NyxLib.AEnemyType, EnemyEntry>();
-        public static Dictionary<NyxLib.AEnemyType, EnemyAttributes> EnemiesAttributes = new Dictionary<NyxLib.AEnemyType, EnemyAttributes>();
+        public static Dictionary<EnemyTypeData, EnemyEntry> EnemyEntries = new Dictionary<EnemyTypeData, EnemyEntry>();
+        public static Dictionary<EnemyTypeData, EnemyAttributes> EnemiesAttributes = new Dictionary<EnemyTypeData, EnemyAttributes>();
         public static bool EnemyEntriesInitialized = false;
 
         public static ConfigEntry<int> BossPickerIterations { get; private set; } = null;
@@ -464,7 +463,7 @@ namespace Nyxpiri.ULTRAKILL.CybergrindBosses
             AddEnemyAttribs(EnemyTypeDB.Instance.GetVanillaType(enemyType), canSpawnInFakeFall, fakeFallSpawnCost, fakeFallSpawnCostIncreasePerSpawn, fakeFallDespawnValue);
         }
 
-        private static void AddEnemyAttribs(AEnemyType enemyType, bool canSpawnInFakeFall, int fakeFallSpawnCost, int fakeFallSpawnCostIncreasePerSpawn, int fakeFallDespawnValue)
+        private static void AddEnemyAttribs(EnemyTypeData enemyType, bool canSpawnInFakeFall, int fakeFallSpawnCost, int fakeFallSpawnCostIncreasePerSpawn, int fakeFallDespawnValue)
         {
             var attribs = new EnemyAttributes();
             attribs.CanSpawnInFakeFall = _config.Bind($"Attributes.{enemyType.Name}", "CanSpawnInFakeFall", canSpawnInFakeFall, $"set if {enemyType} can spawn/exist in fake falls");
@@ -479,7 +478,7 @@ namespace Nyxpiri.ULTRAKILL.CybergrindBosses
             AddEnemyType(EnemyTypeDB.Instance.GetVanillaType(enemyType), enabled, spawnCost, spawnWave, showBossBar, healthScalar, spawnCooldown, spawnCostBonusScalar, spawnCostRequirementScalar, spawnCostSpentScalar, spawnCostBonusSpentScalar, individualCostIncreasePerSpawn, individualPersistentSpawnCostBoost, individualPersistentSpawnCostBoostMax, individualPersistentSpawnCostBoostDecay);
         }
 
-        private static void AddEnemyType(NyxLib.AEnemyType enemyType, bool enabled, int spawnCost, int spawnWave, bool showBossBar, float healthScalar, int spawnCooldown, float spawnCostBonusScalar, float spawnCostRequirementScalar, float spawnCostSpentScalar, float spawnCostBonusSpentScalar, int individualCostIncreasePerSpawn, int individualPersistentSpawnCostBoost, int individualPersistentSpawnCostBoostMax, int individualPersistentSpawnCostBoostDecay)
+        private static void AddEnemyType(EnemyTypeData enemyType, bool enabled, int spawnCost, int spawnWave, bool showBossBar, float healthScalar, int spawnCooldown, float spawnCostBonusScalar, float spawnCostRequirementScalar, float spawnCostSpentScalar, float spawnCostBonusSpentScalar, int individualCostIncreasePerSpawn, int individualPersistentSpawnCostBoost, int individualPersistentSpawnCostBoostMax, int individualPersistentSpawnCostBoostDecay)
         {
             if (EnemyEntries.ContainsKey(enemyType))
             {

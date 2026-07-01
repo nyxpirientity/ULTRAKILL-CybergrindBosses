@@ -6,7 +6,6 @@ using HarmonyLib;
 using System.Linq;
 using System.Collections.Generic;
 using UnityEngine.SceneManagement;
-using Nyxpiri.ULTRAKILL.NyxLib.EnemyTypes;
 
 namespace Nyxpiri.ULTRAKILL.CybergrindBosses
 {
@@ -23,7 +22,7 @@ namespace Nyxpiri.ULTRAKILL.CybergrindBosses
             EnemyVariants.Initialize();
 
             NyxLib.Cheats.ReadyForCheatRegistration += RegisterCheats;
-            NyxLib.ScenesEvents.OnSceneWasLoaded += (UnityEngine.SceneManagement.Scene scene, string levelName, string unitySceneName) =>
+            NyxLib.SceneEvents.OnSceneLoad += (UnityEngine.SceneManagement.Scene scene, string levelName, string unitySceneName) =>
             {
                 if (EndlessGrid.Instance != null)
                 {

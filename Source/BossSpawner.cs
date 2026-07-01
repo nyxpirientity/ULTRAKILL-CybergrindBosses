@@ -6,7 +6,6 @@ using HarmonyLib;
 using System.Linq;
 using System.Collections.Generic;
 using UnityEngine.SceneManagement;
-using Nyxpiri.ULTRAKILL.NyxLib.EnemyTypes;
 
 namespace Nyxpiri.ULTRAKILL.CybergrindBosses
 {
@@ -101,14 +100,14 @@ namespace Nyxpiri.ULTRAKILL.CybergrindBosses
 
         private void BigHarmlessExplosionAt(Vector3 position)
         {
-            var explosion = GameObject.Instantiate(NyxLib.Assets.ExplosionPrefab, position, Quaternion.identity);
-            var eadd = explosion.GetComponent<ExplosionAdditions>();
-            eadd.Harmless = true;
-            eadd.ExplosionScale = 20.0f;
-            eadd.ExplosionSpeedScale = 20.0f;
-            eadd.ExplosionPushScale = 0.0f;
-            explosion.SetActive(true);
-            foreach (var audio in eadd.Audios)
+            var explosion = NyxLib.Assets.Explosions.Normal.Instantiate(position, Quaternion.identity, null);
+
+            explosion.MakeHarmless();
+            explosion.ScaleSpeedAndSize(20.0f);
+            explosion.ScalePushForce(0.0f);
+            explosion.gameObject.SetActive(true);
+
+            foreach (var audio in explosion.GetComponentsInChildren<AudioSource>())
             {
                 audio.maxDistance *= 100.0f;
                 audio.volume *= 1.2f;
@@ -120,13 +119,13 @@ namespace Nyxpiri.ULTRAKILL.CybergrindBosses
             var enemies = arena.Grid.GetComponentsInChildren<EnemyComponents>();
             int points = 0;
 
-            Dictionary<AEnemyType, int> spawnCostIncreases = new Dictionary<AEnemyType, int>();
+            Dictionary<EnemyTypeData, int> spawnCostIncreases = new Dictionary<EnemyTypeData, int>();
             FakeFallRegistrator.Register();
             BigHarmlessExplosionAt(CyberArena.HorizontalCenter);
             BigHarmlessExplosionAt(CyberArena.HorizontalCenter);
             CyberArena.Instance.DisableGeometry();
 
-            List<(AEnemyType, Options.EnemyAttributes)> fakeFallSpawnables = new List<(AEnemyType, Options.EnemyAttributes)>();
+            List<(EnemyTypeData, Options.EnemyAttributes)> fakeFallSpawnables = new List<(EnemyTypeData, Options.EnemyAttributes)>();
 
             foreach (var entry in Options.EnemiesAttributes)
             {
@@ -165,9 +164,9 @@ namespace Nyxpiri.ULTRAKILL.CybergrindBosses
             spawnTimer = 0.3f;
         }
 
-        private bool SpawnFakeFallEnemy(List<(AEnemyType, Options.EnemyAttributes)> spawnables, ref int points, Dictionary<AEnemyType, int> spawnCostIncreases)
+        private bool SpawnFakeFallEnemy(List<(EnemyTypeData, Options.EnemyAttributes)> spawnables, ref int points, Dictionary<EnemyTypeData, int> spawnCostIncreases)
         {
-            (AEnemyType, Options.EnemyAttributes)? mostExpensive = null;
+            (EnemyTypeData, Options.EnemyAttributes)? mostExpensive = null;
             int mostExpensiveCost = 0;
 
             foreach (var spawnable in spawnables)
