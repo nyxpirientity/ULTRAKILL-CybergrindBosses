@@ -207,7 +207,7 @@ namespace Nyxpiri.ULTRAKILL.CybergrindBosses
                     {
                         var enemy = v2.GetComponent<EnemyComponents>();
                         enemy.Eid.ApplyDamage(Vector3.zero, enemy.Eid.transform.position, Options.V2FallOffArenaDamage.Value, 1.0f, null, true);
-                        var explosion = NyxLib.Assets.Explosions.Normal.Instantiate(transform.parent);
+                        var explosion = NyxLib.Assets.Explosions.Normal.Instantiate(active: false, transform.parent);
                         explosion.transform.position = transform.position + Vector3.down;
                         explosion.MakeHarmless();
                         explosion.ScaleDamage(0);
@@ -460,7 +460,7 @@ namespace Nyxpiri.ULTRAKILL.CybergrindBosses
 
         private void BigHarmlessExplosionAt(Vector3 position)
         {
-            var explosion = NyxLib.Assets.Explosions.Normal.Instantiate(position, Quaternion.identity, null);
+            var explosion = NyxLib.Assets.Explosions.Normal.Instantiate(active: false, position, Quaternion.identity, null);
 
             explosion.MakeHarmless();
             explosion.ScaleSize(20.0f);
@@ -500,7 +500,7 @@ namespace Nyxpiri.ULTRAKILL.CybergrindBosses
 
                 lev.stat.health *= 0.5f;
 
-                var explosion = NyxLib.Assets.Explosions.Normal.Instantiate(CyberArena.HorizontalCenter, Quaternion.identity, null);
+                var explosion = NyxLib.Assets.Explosions.Normal.Instantiate(active: false, CyberArena.HorizontalCenter, Quaternion.identity, null);
                 explosion.MakeHarmless();
                 explosion.ScaleSize(20.0f);
                 explosion.ScaleSpeed(10.0f);
@@ -543,7 +543,7 @@ namespace Nyxpiri.ULTRAKILL.CybergrindBosses
 
                 Vector3 currentOffset = (Quaternion.Euler(new Vector3(0.0f, Mathf.Lerp(0.0f, 360.0f, ((float)(i) + -0.5f) / numHookPoints), 0.0f)) * (offset));
 
-                var hookPointGo = NyxLib.Assets.HookPoints.Slingshot.Instantiate(lev.head.transform.position + currentOffset, Quaternion.identity, EndlessGrid.Instance.transform);
+                var hookPointGo = NyxLib.Assets.HookPoints.Slingshot.Instantiate(active: false, lev.head.transform.position + currentOffset, Quaternion.identity, EndlessGrid.Instance.transform);
                 hookPointGo.SetActive(true);
                 GameObjectsToDestroy.Add(hookPointGo);
             }

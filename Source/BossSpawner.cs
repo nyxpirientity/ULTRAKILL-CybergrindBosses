@@ -100,7 +100,7 @@ namespace Nyxpiri.ULTRAKILL.CybergrindBosses
 
         private void BigHarmlessExplosionAt(Vector3 position)
         {
-            var explosion = NyxLib.Assets.Explosions.Normal.Instantiate(position, Quaternion.identity, null);
+            var explosion = NyxLib.Assets.Explosions.Normal.Instantiate(active: false, position, Quaternion.identity, null);
 
             explosion.MakeHarmless();
             explosion.ScaleSpeedAndSize(20.0f);

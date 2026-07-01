@@ -125,7 +125,7 @@ namespace Nyxpiri.ULTRAKILL.CybergrindBosses
 
             _selfDestructing = true;
 
-            var explosion = NyxLib.Assets.Explosions.Normal.Instantiate(transform.parent);
+            var explosion = NyxLib.Assets.Explosions.Normal.Instantiate(active: false, transform.parent);
             explosion.transform.position = transform.position + Vector3.down;
             explosion.MakeHarmless();
             explosion.ScaleDamage(0.0f);
