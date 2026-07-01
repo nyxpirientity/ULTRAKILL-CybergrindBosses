@@ -543,7 +543,7 @@ namespace Nyxpiri.ULTRAKILL.CybergrindBosses
 
                 Vector3 currentOffset = (Quaternion.Euler(new Vector3(0.0f, Mathf.Lerp(0.0f, 360.0f, ((float)(i) + -0.5f) / numHookPoints), 0.0f)) * (offset));
 
-                var hookPointGo = GameObject.Instantiate(NyxLib.Assets.HookPoints.SlingshotHookPoint, lev.head.transform.position + currentOffset, Quaternion.identity, EndlessGrid.Instance.transform);
+                var hookPointGo = NyxLib.Assets.HookPoints.Slingshot.Instantiate(lev.head.transform.position + currentOffset, Quaternion.identity, EndlessGrid.Instance.transform);
                 hookPointGo.SetActive(true);
                 GameObjectsToDestroy.Add(hookPointGo);
             }
