@@ -206,6 +206,7 @@ namespace Nyxpiri.ULTRAKILL.CybergrindBosses
                 Vector3 currentOffset = (Quaternion.Euler(new Vector3(0.0f, Mathf.Lerp(0.0f, 360.0f, ((float)(i)) / numHookPoints), 0.0f)) * (offset));
 
                 var hookPointGo = NyxLib.Assets.HookPoints.Slingshot.Instantiate(HorizontalCenter + currentOffset, Quaternion.identity, EndlessGrid.Instance.transform);
+                hookPointGo.SetActive(false);
 
                 FakeFallHookPoints.Add(hookPointGo);
             }
@@ -218,6 +219,7 @@ namespace Nyxpiri.ULTRAKILL.CybergrindBosses
                 Vector3 currentOffset = (Quaternion.Euler(new Vector3(0.0f, Mathf.Lerp(0.0f, 360.0f, ((float)(i)) / numHookPoints), 0.0f)) * (offset));
 
                 var hookPointGo = NyxLib.Assets.HookPoints.Slingshot.Instantiate(HorizontalCenter + currentOffset, Quaternion.identity, EndlessGrid.Instance.transform);
+                hookPointGo.SetActive(false);
 
                 FakeFallHookPoints.Add(hookPointGo);
             }
