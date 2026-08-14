@@ -104,15 +104,27 @@ namespace Nyxpiri.ULTRAKILL.CybergrindBosses
 
         private void CheckIfDefeated()
         {
-            foreach (var enemy in enemies)
+            try
             {
-                if (!enemy.Eid.Dead)
+                foreach (var enemy in eids)
                 {
-                    return;
+                    enemy?.ForceGetHealth();
+                    if ((!enemy.Dead && enemy.Health > 0.0f))
+                    {
+                        return;
+                    }
                 }
             }
+            catch (System.Exception e)
+            {
+                Log.Warning($"GrindSecurity CheckIfDefeated exception : {e}");
+                Defeated();
+            }
+        }
 
-            Defeated();
+        protected void OnDestroy()
+        {
+            EndlessGrid.Instance.GetComponent<ActivateNextWave>().AddDeadEnemy();
         }
 
         private bool _selfDestructing = false;
@@ -126,19 +138,12 @@ namespace Nyxpiri.ULTRAKILL.CybergrindBosses
             _selfDestructing = true;
 
             var explosion = NyxLib.Assets.Explosions.Normal.Instantiate(active: false, transform.parent);
-            explosion.transform.position = transform.position + Vector3.down;
+            explosion.transform.position = transform.position;
             explosion.MakeHarmless();
             explosion.ScaleDamage(0.0f);
             explosion.ScalePushForce(0.0f);
             explosion.FriendlyFire = true;
             explosion.gameObject.SetActive(true);
-
-            EndlessGrid.Instance.GetComponent<ActivateNextWave>().AddDeadEnemy();
-            Invoke("SelfDestruct", 0.25f);
-        }
-
-        private void SelfDestruct()
-        {
             Destroy(gameObject);
         }
     }
