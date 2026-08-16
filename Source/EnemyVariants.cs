@@ -19,6 +19,17 @@ namespace Nyxpiri.ULTRAKILL.CybergrindBosses
         public static FakeFallZone FakeFallZone = null;
         public static GameObject FakeFallZoneHud = null;
 
+        public static GameObject PrefabHolder
+        {
+            get
+            {
+                prefabHolder ??= new GameObject();
+                GameObject.DontDestroyOnLoad(prefabHolder);
+                prefabHolder.SetActive(false);
+                return prefabHolder;
+            }
+        }
+
         public static GameObject SpawnAgonyAndTundra(Vector3 position, Quaternion rotation, Transform parent)
         {
             var go = EnemyPrefabDatabase.TrySpawnAt(TundraAgonyType, position, rotation, parent, true);
@@ -28,32 +39,30 @@ namespace Nyxpiri.ULTRAKILL.CybergrindBosses
 
         internal static void Initialize()
         {
-            LevelQuickLoader.AddQuickLoadLevel("Level 2-4");
             LevelQuickLoader.AddQuickLoadLevel("Level 1-3");
             LevelQuickLoader.AddQuickLoadLevel("Level 5-4");
             LevelQuickLoader.AddQuickLoadLevel("Level 7-3");
             LevelQuickLoader.AddQuickLoadLevel("Level 7-4");
             LevelQuickLoader.AddQuickLoadLevel("Level 8-4");
 
-            NyxLib.Assets.AssetPickingManager.AddAssetPicker<MinosBoss>((minos) =>
+            NyxLib.Assets.Gear.PostAssetsLoaded += () =>
             {
-                prefabHolder ??= new GameObject();
-                GameObject.DontDestroyOnLoad(prefabHolder);
-                prefabHolder.SetActive(false);
-
-                CorpseOfKingMinosPrefab = GameObject.Instantiate(minos.gameObject, prefabHolder.transform);
+                CorpseOfKingMinosPrefab = GameObject.Instantiate(DefaultReferenceManager.Instance.minosCorpse, PrefabHolder.transform);
                 var pminos = CorpseOfKingMinosPrefab.GetComponent<MinosBoss>();
                 pminos.parryChallenge = false;
+            };
+
+            NyxLib.Assets.AssetPickingManager.AddAssetPicker<LeviathanController>((leviathan) =>
+            {
+                LeviathanPrefab = MonoBehaviour.Instantiate(leviathan, PrefabHolder.transform);
+                LeviathanPrefab.phaseChangeHealth = -10.0f;
+                LeviathanPrefab.tailAddHealth = LeviathanPrefab.GetComponent<Enemy>().health * 0.5f;
 
                 return true;
             });
 
             NyxLib.Assets.AssetPickingManager.AddAssetPicker<CombinedBossBar>((bb) =>
             {
-                prefabHolder ??= new GameObject();
-                GameObject.DontDestroyOnLoad(prefabHolder);
-                prefabHolder.SetActive(false);
-
                 if (bb.gameObject.name != "SecuritySystem")
                 {
                     return false;
@@ -71,53 +80,28 @@ namespace Nyxpiri.ULTRAKILL.CybergrindBosses
 
             NyxLib.Assets.AssetPickingManager.AddAssetPicker<Geryon>((geryon) =>
             {
-                prefabHolder ??= new GameObject();
-                GameObject.DontDestroyOnLoad(prefabHolder);
-                prefabHolder.SetActive(false);
-
-                GeryonPrefab = GameObject.Instantiate(geryon, prefabHolder.transform);
+                GeryonPrefab = GameObject.Instantiate(geryon, PrefabHolder.transform);
 
                 return true;
             });
 
             NyxLib.Assets.AssetPickingManager.AddAssetPicker<FakeFallZone>((ffz) =>
             {
-                prefabHolder ??= new GameObject();
-                GameObject.DontDestroyOnLoad(prefabHolder);
-                prefabHolder.SetActive(false);
-
-                FakeFallZone = GameObject.Instantiate(ffz, prefabHolder.transform);
+                FakeFallZone = GameObject.Instantiate(ffz, PrefabHolder.transform);
 
                 return true;
             });
 
             NyxLib.Assets.AssetPickingManager.AddAssetPicker<BloodFiller>((bf) =>
             {
-                prefabHolder ??= new GameObject();
-                GameObject.DontDestroyOnLoad(prefabHolder);
-                prefabHolder.SetActive(false);
-
                 if (!bf.gameObject.name.Contains("ideTree"))
                 {
                     return false;
                 }
 
-                BloodTreePrefab = GameObject.Instantiate(bf, prefabHolder.transform);
+                BloodTreePrefab = GameObject.Instantiate(bf, PrefabHolder.transform);
                 bf.onFullyFilled = new UltrakillEvent();
                 BloodTreePrefab.gameObject.SetActive(false);
-
-                return true;
-            });
-
-            NyxLib.Assets.AssetPickingManager.AddAssetPicker<LeviathanController>((leviathan) =>
-            {
-                prefabHolder ??= new GameObject();
-                GameObject.DontDestroyOnLoad(prefabHolder);
-                prefabHolder.SetActive(false);
-
-                LeviathanPrefab = MonoBehaviour.Instantiate(leviathan, prefabHolder.transform);
-                LeviathanPrefab.phaseChangeHealth = -10.0f;
-                LeviathanPrefab.tailAddHealth = LeviathanPrefab.GetComponent<Enemy>().health * 0.5f;
 
                 return true;
             });

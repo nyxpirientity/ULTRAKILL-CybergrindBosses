@@ -9,7 +9,7 @@ using UnityEngine.SceneManagement;
 
 namespace Nyxpiri.ULTRAKILL.CybergrindBosses
 {
-    [BepInPlugin("nyxpiri.ultrakill.cybergrind-bosses", "Cybergrind Bosses", "0.0.0")]
+    [BepInPlugin("nyxpiri.ultrakill.cybergrind-bosses", "Cybergrind Bosses", "0.0.1")]
     [BepInProcess("ULTRAKILL.exe")]
     [BepInDependency("nyxpiri.ultrakill.nyxlib", BepInDependency.DependencyFlags.HardDependency)]
     public class CybergrindBosses : BaseUnityPlugin
